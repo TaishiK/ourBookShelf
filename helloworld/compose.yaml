@@ -1,0 +1,25 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+  redis:
+    image: redis:alpine
+    ports:
+      - 6379:6379
+  
+  postgres:
+    image: postgres:15.0
+    ports:
+      - 5432:5432
+    volumes:
+      - db:/var/lib/postgres/data
+    environment:
+      POSTGRES_USER: app #DBに接続する際のユーザー名
+      POSTGRES_PASSWORD: password #DBに接続する際のパスワード
+      POSTGRES_DB: app #DB名
+
+volumes:
+  db:
+     driver: local
