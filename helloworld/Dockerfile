@@ -1,6 +1,10 @@
 # マルチステージビルドを使用しRustのビルド環境を作成
 FROM rust:1.78-slim-bookworm AS builder
 WORKDIR /app
+
+ARG DATABASE_URL #sqlxクレートを使ったビルドに必要な環境変数
+ENV DATABASE_URL=${DATABASE_URL}
+
 COPY . .
 RUN cargo build --release
 
