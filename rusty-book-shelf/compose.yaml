@@ -12,7 +12,7 @@ services:
   postgres:
     image: postgres:15.0
     ports:
-      - 5432:5432
+      - 5433:5432 #ホスト側のポート:コンテナ側のポート
     volumes:
       - db:/var/lib/postgres/data
     environment:
