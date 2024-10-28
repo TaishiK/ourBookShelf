@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+# targetディレクトリを無視
+/rusty-book-shelf/target
+
+# Cargo.lockファイルを無視
+/rusty-book-shelf/Cargo.lock
+#Cargo.tomlディレクトリを
+/rusty-book-shelf/Cargo.toml
