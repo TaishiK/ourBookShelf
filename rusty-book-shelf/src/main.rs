@@ -44,9 +44,9 @@ async fn health_check_db(State(db): State<PgPool>) -> StatusCode {
 async fn main() -> Result<()> {
     let database_cfg = DatabaseConfig { //DB接続情報を設定
         host: "localhost".into(),
-        port: 5432,
+        port: 5433,
         username: "app".into(),
-        password: "passwd".into(),
+        password: "password".into(),
         database: "app".into(),
     };
     let conn_pool = connect_database_with(database_cfg); //DB接続プールを作成
