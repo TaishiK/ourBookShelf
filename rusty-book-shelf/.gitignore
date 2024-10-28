@@ -1,0 +1,8 @@
+# targetディレクトリを無視
+/target
+# Cargo.lockファイルを無視
+/Cargo.lock
+#Cargo.tomlディレクトリを無視
+/Cargo.toml
+
+# その他の無視したいファイルやフォルダ
