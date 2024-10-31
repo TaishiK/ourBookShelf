@@ -1,0 +1,40 @@
+name: CI for book
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths-ignore:
+      - "README.md"
+      - "frontend/**"
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      # 1
+      - uses: actions/checkout@v4 #actions/checkoutを使ってリポジトリをチェックアウト
+      # 2
+      - name: Cache dependencies #キャッシュを使って依存関係を解決
+        uses: Swatinem/rust-cache@v2
+      # 3
+      - name: Install Rust toolchain
+        run:
+          rustup toolchain install stable #stableのRustをインストール
+      # 4
+      - name: Install cargo-related tools # cargo-makeをインストール
+        uses: taiki-e/install-action@v2 # taiki-e/install-actionを使ってcargo-makeをインストール サードパーティー製のアクションを使う場合はuses:の後にユーザー名/リポジトリ名を指定する
+        with:
+          tool: nextest, cargo-make
+      # 5
+      - name: Tests compile
+        run: cargo make test-ci --no-run --locked # --no-runをつけることでテストを実行しない
+      # 6
+      -name: Test
+        run: cargo make test-ci #テストを実行(cargo-nextestを使っている)
+      # 7
+      - name: Clippy
+        run: cargo make clippy-ci -- -Dwarnings # -Dwarningsをつけることで警告をエラーとして扱う
+      # 8
+      - name: Rustfmt
+        run: cargo make fmt -- --check # --checkをつけることでフォーマットが合っているか確認する
