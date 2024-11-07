@@ -1,5 +1,5 @@
 -- Add up migration script here
--- 1. update_at を自動更新する関数の作成
+-- 1. updated_at を自動更新する関数の作成
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS trigger AS '
   BEGIN
     new.updated_at := ''now'';
@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS books (
     updated_at TIMESTAMP(3) WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP(3)
 );
 
--- 3. books テーブルへのトリガーの追加
-CREATE TRIGGER books_updated_at_trigger 
+--3. books テーブルに updated_at トリガーを追加
+CREATE TRIGGER books_updated_at_trigger
     BEFORE UPDATE ON books FOR EACH ROW
     EXECUTE PROCEDURE set_updated_at();
