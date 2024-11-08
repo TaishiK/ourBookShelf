@@ -1,6 +1,8 @@
 use shared::config::DatabaseConfig;
 use sqlx::{postgres::PgConnectOptions, PgPool};
 
+pub mod model;
+
 //DatabaseConfigからPgConnectOptionsに変換する関数
 fn make_pg_connect_options(cfg: &DatabaseConfig) -> PgConnectOptions {
     PgConnectOptions::new()
@@ -22,3 +24,10 @@ impl ConnectionPool {
 pub fn connect_database_with(cfg: &DatabaseConfig) -> ConnectionPool {
     ConnectionPool(PgPool::connect_lazy_with(make_pg_connect_options(&cfg)))
 } //ConnectionPoolを作成し返す関数
+
+impl ConnectionPool {
+    pub fn new(pool: PgPool) -> Self {
+        Self(pool)
+    }
+    //sqlx::PgPoolをラップした構造体
+}

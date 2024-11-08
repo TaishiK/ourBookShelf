@@ -1,0 +1,36 @@
+use kernel::model::book::Book;
+use uuid::Uuid;
+
+pub struct BookRow {
+    pub book_id: Uuid,
+    pub title: String,
+    pub author: String,
+    pub isbn : String,
+    pub description: String,
+    //pub publisher: String,
+    //pub published_on: chrono::NaiveDate,
+}
+
+impl From<BookRow> for Book {
+    fn from(value: BookRow) -> Self {
+        //パターンマッチを用いて’BookRow’の中身を取り出す
+        let BookRow {
+            book_id,
+            title,
+            author,
+            isbn,
+            description,
+            //publisher,
+            //published_on,
+        } = value;
+        Self {
+            id: book_id,
+            title,
+            author,
+            isbn,
+            description,
+            //publisher,
+            //published_on,
+        }
+    }
+}
