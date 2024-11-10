@@ -14,15 +14,16 @@ fn make_pg_connect_options(cfg: &DatabaseConfig) -> PgConnectOptions {
 }
 
 #[derive(Clone)]
-pub struct ConnectionPool(PgPool);//sqlx::PgPoolをラップした構造体
+pub struct ConnectionPool(PgPool); //sqlx::PgPoolをラップした構造体
 impl ConnectionPool {
-    pub fn inner_ref(&self) -> &PgPool { //sqlx::PgPoolへの参照を返すメソッド
+    pub fn inner_ref(&self) -> &PgPool {
+        //sqlx::PgPoolへの参照を返すメソッド
         &self.0
     }
 }
 
 pub fn connect_database_with(cfg: &DatabaseConfig) -> ConnectionPool {
-    ConnectionPool(PgPool::connect_lazy_with(make_pg_connect_options(&cfg)))
+    ConnectionPool(PgPool::connect_lazy_with(make_pg_connect_options(cfg))) // cfgの前から＆削除10Nov2024
 } //ConnectionPoolを作成し返す関数
 
 impl ConnectionPool {

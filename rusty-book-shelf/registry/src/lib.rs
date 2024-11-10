@@ -1,20 +1,22 @@
-use std::sync::Arc;
-use adapter::{database::ConnectionPool, repository::health::HealthCheckRepositoryImpl};
-use kernel::repository::health::HealthCheckRepository;
 use adapter::repository::book::BookRepositoryImpl;
+use adapter::{database::ConnectionPool, repository::health::HealthCheckRepositoryImpl};
 use kernel::repository::book::BookRepository;
+use kernel::repository::health::HealthCheckRepository;
+use std::sync::Arc;
 
 #[derive(Clone)] //↓ DIコンテナの役割を果たす構造体を定義（Dependency Injection）
-pub struct AppRegistry { //cloneはAppRegistryをコピー可能にする　のちにaxum側で使う
+pub struct AppRegistry {
+    //cloneはAppRegistryをコピー可能にする　のちにaxum側で使う
     health_check_repository: Arc<dyn HealthCheckRepository>,
     book_repository: Arc<dyn BookRepository>,
 }
 
 impl AppRegistry {
-    pub fn new(pool: ConnectionPool) -> Self {//関数内で手書きして依存解決を行う
+    pub fn new(pool: ConnectionPool) -> Self {
+        //関数内で手書きして依存解決を行う
         let health_check_repository = Arc::new(HealthCheckRepositoryImpl::new(pool.clone()));
         let book_repository = Arc::new(BookRepositoryImpl::new(pool.clone()));
-        Self { 
+        Self {
             health_check_repository,
             book_repository,
         }

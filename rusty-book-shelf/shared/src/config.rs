@@ -1,9 +1,11 @@
 use anyhow::Result;
 
-pub struct AppConfig {//アプリケーションの設定を保持する構造体
+pub struct AppConfig {
+    //アプリケーションの設定を保持する構造体
     pub database: DatabaseConfig,
 }
-impl AppConfig { //データベース接続に必要な情報を環境変数から取り出す処理
+impl AppConfig {
+    //データベース接続に必要な情報を環境変数から取り出す処理
     pub fn new() -> Result<Self> {
         let database = DatabaseConfig {
             host: std::env::var("DATABASE_HOST")?,
@@ -16,7 +18,8 @@ impl AppConfig { //データベース接続に必要な情報を環境変数か�
     }
 }
 
-pub struct DatabaseConfig {//DB接続設定を保持する構造体
+pub struct DatabaseConfig {
+    //DB接続設定を保持する構造体
     pub host: String,
     pub port: u16,
     pub username: String,
