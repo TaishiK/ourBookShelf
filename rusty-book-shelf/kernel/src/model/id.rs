@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use serde::{ Deserialize, Serialize };
 use shared::error::AppError;
 use std::str::FromStr;
 
@@ -11,8 +11,8 @@ macro_rules! define_id {
             PartialEq,
             Eq,
             Hash,
-            Desiriarize,
-            Serializze,
+            Deserialize,
+            Serialize,
             sqlx::Type,
         )]
         #[serde(into = "String")]
@@ -38,7 +38,7 @@ macro_rules! define_id {
             }
         }
         impl From<uuid::Uuid> for $id_type {
-            fn from(u: uuid::uuid) -> Self {
+            fn from(u: uuid::Uuid) -> Self {
                 Self(u)
             }
         }

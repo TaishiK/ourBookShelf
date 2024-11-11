@@ -5,6 +5,7 @@ use kernel::model::book::{event::CreateBook, Book};
 use kernel::repository::book::BookRepository;
 use uuid::Uuid;
 use shared::error::AppResult;
+use shared::error::AppError;
 
 use crate::database::model::book::BookRow;
 use crate::database::ConnectionPool;
