@@ -4,13 +4,14 @@ use axum::{
     response::{IntoResponse, Response},
     Json,
 };
-use registry::AppRegistry;
+use registry::AppRegi stry;
 use thiserror::Error;
 use uuid::Uuid;
+use shared::error::AppError;
 
 use crate::model::book::{BookResponse, CreateBookRequest};
 
-#[derive(Error, Debug)]
+/*#[derive(Error, Debug)]//thiserrorを使ってエラー処理を行うので抑制
 pub enum AppError {
     //暫定のエラー処理記述
     #[error("{0}")]
@@ -20,41 +21,44 @@ impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         (StatusCode::INTERNAL_SERVER_ERROR, "").into_response()
     }
-}
-
+}*/
+ 
 pub async fn register_book(
     //書籍を登録するapi
     State(registry): State<AppRegistry>, //AppRegistryを取得
     Json(req): Json<CreateBookRequest>,  //リクエストボディを取得
-) -> Result<StatusCode, AppError> {
-    registry
+//) -> Result<StatusCode, AppError> {//anyhowをAppResultに変更
+) -> AppResult<StatusCode, AppError> {
+        registry
         .book_repository()
         .create(req.into())
         .await
         .map(|_| StatusCode::CREATED)
-        .map_err(AppError::from)
+        //.map_err(AppError::from)
 }
 
 pub async fn show_book_list(
     //書籍一覧を取得するapi
     State(registry): State<AppRegistry>, //AppRegistryを取得
-) -> Result<Json<Vec<BookResponse>>, AppError> {
-    //レスポンスボディをJson形式で返す
+//) -> Result<Json<Vec<BookResponse>>, AppError> {//anyhowをAppResultに変更
+) -> AppResult<Json<Vec<BookResponse>>, AppError> {
+//レスポンスボディをJson形式で返す
     registry
         .book_repository()
         .find_all()
         .await
         .map(|v| v.into_iter().map(BookResponse::from).collect::<Vec<_>>())
         .map(Json)
-        .map_err(AppError::from)
+        //.map_err(AppError::from)
 }
 
 pub async fn show_book(
     //書籍詳細を取得するapi
     Path(book_id): Path<Uuid>,           //リクエストパラメータを取得
     State(registry): State<AppRegistry>, //AppRegistryを取得
-) -> Result<Json<BookResponse>, AppError> {
-    //レスポンスボディをJson形式で返す
+//) -> Result<Json<BookResponse>, AppError> {//anyhowをAppResultに変更
+) -> AppResult<Json<BookResponse>, AppError> {
+//レスポンスボディをJson形式で返す
     registry
         .book_repository()
         .find_by_id(book_id) //リクエストパラメータを元に書籍を取得
@@ -63,5 +67,5 @@ pub async fn show_book(
             Some(bc) => Ok(Json(bc.into())),
             None => Err(anyhow::anyhow!("The specified book was not found")),
         })
-        .map_err(AppError::from)
+        //.map_err(AppError::from)
 }
