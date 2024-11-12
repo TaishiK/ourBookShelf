@@ -33,7 +33,7 @@
 
 # targetディレクトリを無視
 /rusty-book-shelf/target
-
+/.git/objects/pack/pack-*.pack
 # Cargo.lockファイルを無視
 #/rusty-book-shelf/Cargo.lock
 #Cargo.tomlディレクトリを
