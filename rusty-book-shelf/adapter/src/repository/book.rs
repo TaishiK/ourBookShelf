@@ -1,11 +1,14 @@
 //use anyhow::Result;//text p150 page付近AppResultに変更
 use async_trait::async_trait;
 use derive_new::new;
-use kernel::model::book::{event::CreateBook, Book};
+use kernel::model::{
+    book::{event::CreateBook, Book},
+    id::BookId,
+};
 use kernel::repository::book::BookRepository;
-use uuid::Uuid;
-use shared::error::AppResult;
+
 use shared::error::AppError;
+use shared::error::AppResult;
 
 use crate::database::model::book::BookRow;
 use crate::database::ConnectionPool;
@@ -38,7 +41,7 @@ impl BookRepository for BookRepositoryImpl {
     }
 
     //async fn find_by_id(&self, book_id: Uuid) -> Result<Option<Book>> {
-    async fn find_by_id(&self, book_id: Uuid) -> AppResult<Option<Book>> {
+    async fn find_by_id(&self, book_id: BookId) -> AppResult<Option<Book>> {
         let row: Option<BookRow> = sqlx::query_as!(
             BookRow,
             r#"
@@ -51,7 +54,7 @@ impl BookRepository for BookRepositoryImpl {
                 FROM books
                 WHERE book_id = $1
             "#,
-            book_id
+            book_id as _ //query_as!マクロによるコンパイル時の型チェックを無効化
         )
         .fetch_optional(self.db.inner_ref())
         //.await?;
@@ -105,7 +108,7 @@ mod tests {
 
         //書籍の一覧の最初のデータから書籍IDを取得し、そのIDで書籍データを取得すると、投入した書籍データが取得できることを確認
         let book_id = res[0].id;
-        let res = repo.find_by_id(book_id).await?;
+        let res = repo.find_by_id(BookId).await?;
         assert!(res.is_some());
 
         //取得した書籍データが投入した書籍データと一致することを確認

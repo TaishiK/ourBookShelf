@@ -1,20 +1,10 @@
-use serde::{ Deserialize, Serialize };
+use serde::{Deserialize, Serialize};
 use shared::error::AppError;
 use std::str::FromStr;
 
 macro_rules! define_id {
     ($id_type: ident) => {
-        #[derive(
-            Debug,
-            Clone,
-            Copy,
-            PartialEq,
-            Eq,
-            Hash,
-            Deserialize,
-            Serialize,
-            sqlx::Type,
-        )]
+        #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize, sqlx::Type)]
         #[serde(into = "String")]
         #[sqlx(transparent)]
         pub struct $id_type(uuid::Uuid);
@@ -43,12 +33,14 @@ macro_rules! define_id {
             }
         }
         impl std::fmt::Display for $id_type {
-            fn fmt(&self, f: &mut std::fmt::Formatter<'_>,
-            ) -> std::fmt::Result {
-                write!(f, "{}", self.0
-                .as_simple()
-                .encode_lower(&mut uuid::Uuid::encode_buffer())
-            )
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                write!(
+                    f,
+                    "{}",
+                    self.0
+                        .as_simple()
+                        .encode_lower(&mut uuid::Uuid::encode_buffer())
+                )
             }
         }
         impl From<$id_type> for String {
@@ -61,4 +53,3 @@ macro_rules! define_id {
 define_id!(UserId);
 define_id!(BookId);
 define_id!(CheckoutId);
-
