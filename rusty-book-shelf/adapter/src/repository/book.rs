@@ -18,7 +18,7 @@ pub struct BookRepositoryImpl {
     db: ConnectionPool,
 }
 
-
+#[async_trait]
 impl BookRepository for BookRepositoryImpl {
     //async fn create(&self, event: CreateBook) -> Result<()> {//anyhowをAppResultに変更
     async fn create(&self, event: CreateBook) -> AppResult<()> {
