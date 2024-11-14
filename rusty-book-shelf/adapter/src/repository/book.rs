@@ -86,7 +86,6 @@ impl BookRepository for BookRepositoryImpl {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
