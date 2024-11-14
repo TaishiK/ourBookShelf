@@ -2058,6 +2058,7 @@ dependencies = [
  "api",
  "axum",
  "derive-new",
+ "idna",
  "opentelemetry",
  "opentelemetry-jaeger",
  "registry",
