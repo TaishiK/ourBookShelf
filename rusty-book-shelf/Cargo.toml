@@ -34,13 +34,6 @@ serde = { version = "1.0.174", features = ["derive"] }
 secrecy = "0.8.0"
 sqlx = { version = "0.6.3", features = [
     "runtime-tokio",
-    "runtime-actix-native-tls",
-    "runtime-async-std-native-tls",
-    "runtime-actix-native-tls",
-    "runtime-async-std-rustls",
-    "runtime-tokio-native-tls",
-    "runtime-actix-rustls",
-    "runtime-tokio-rustls",
     "uuid",
     "chrono",
     "macros",
@@ -77,6 +70,7 @@ opentelemetry = "0.21.0"
 tracing-opentelemetry = "0.22.0"
 opentelemetry-jaeger = { version = "0.20.0", features = ["rt-tokio"] }
 derive-new.workspace = true
+sqlx = { version = "0.6.3", features = ["macros", "runtime-async-std-native-tls", "runtime-tokio"] }
 
 [profile.dev.package.sqlx-macros]
 opt-level = 3
