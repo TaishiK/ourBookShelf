@@ -88,6 +88,8 @@ impl BookRepository for BookRepositoryImpl {
 
 #[cfg(test)]
 mod tests {
+    use uuid::Uuid;
+
     use super::*;
 
     #[sqlx::test]

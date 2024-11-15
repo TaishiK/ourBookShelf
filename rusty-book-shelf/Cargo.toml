@@ -32,8 +32,8 @@ uuid = { version = "1.4.0", features = ["v4", "serde"] }
 chrono = { version = "0.4.26", default-features = false, features = ["serde"] }
 serde = { version = "1.0.174", features = ["derive"] }
 secrecy = "0.8.0"
-sqlx = { version = "0.6.3", features = [
-    "runtime-tokio-native-tls",
+sqlx = { version = "0.7.3", features = [
+    "runtime-tokio",
     "uuid",
     "chrono",
     "macros",
@@ -69,8 +69,6 @@ tracing-subscriber = { version = "0.3.18", features = ["env-filter", "json"] }
 opentelemetry = "0.21.0"
 tracing-opentelemetry = "0.22.0"
 opentelemetry-jaeger = { version = "0.20.0", features = ["rt-tokio"] }
-derive-new.workspace = true
-idna = "1.0.0"
 
 [profile.dev.package.sqlx-macros]
 opt-level = 3
