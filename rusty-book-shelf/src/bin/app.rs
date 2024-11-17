@@ -1,5 +1,6 @@
 use adapter::database::connect_database_with;
 use anyhow::{Error, Result};
+use core::prelude::v1;
 use std::net::{Ipv4Addr, SocketAddr};
 use tracing::subscriber;
 //use api::handler::health::{health_check, health_check_db};
@@ -9,8 +10,8 @@ use axum::Router;
 use anyhow::Context;
 use registry::AppRegistry;
 use shared::config::AppConfig;
-use shared::env::{which, Environment};
 use tokio::net::TcpListener;
+use shared::env::{which, Environment};
 use tower_http::trace::{DefaultMakeSpan, DefaultOnRequest, DefaultOnResponse, TraceLayer};
 use tower_http::LatencyUnit;
 use tracing::Level;
@@ -38,8 +39,8 @@ fn init_logger() -> Result<()> {
         .with_target(false);
 
     tracing_subscriber::registry()
-        .with(env_filter)
         .with(subscriber)
+        .with(env_filter)
         .try_init()?;
 
     Ok(())
@@ -51,7 +52,7 @@ async fn bootstrap() -> Result<()> {
     let app = Router::new()
         .merge(build_health_check_routers())
         .merge(build_book_routers())
-        .merge(vl::routes())
+        .merge(v1::routes())
         .merge(auth::routes())
         .layer(cors())
         .layer(
