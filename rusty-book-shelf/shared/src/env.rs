@@ -4,7 +4,7 @@ use strum::EnumString;
 #[derive(Default, EnumString)]
 #[strum(serialize_all = "lowercase")]
 
-pub enum ENvironment {
+pub enum Environment {
     #[default]
     Development,
     Production,

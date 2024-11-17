@@ -11,7 +11,7 @@ pub enum AppError {
     ValidationError(#[from] garde::Report),
     #[error("Failed to execute transaction")]
     TransactionError(#[source] sqlx::Error),
-    #[error("Error happed while executing database operation")]
+    #[error("Error happened while executing database operation")]
     SpecificOperationError(#[source] sqlx::Error),
     #[error("No rows affected: {0}")]
     NoRowsAffectedError(String),
@@ -23,7 +23,7 @@ pub enum AppError {
     ConvertToUuidError(#[from] uuid::Error),
     #[error("Failed to login")]
     UnauthenticatedError,
-    #[error("Incorrecrt password or username")]
+    #[error("Incorrect password or username")]
     UnauthorizedError,
     #[error("Not allowed to perform this operation")]
     ForbiddenOperation,
