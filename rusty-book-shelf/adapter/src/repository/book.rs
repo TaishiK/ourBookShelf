@@ -88,8 +88,6 @@ impl BookRepository for BookRepositoryImpl {
 
 #[cfg(test)]
 mod tests {
-    use uuid::Uuid;
-
     use super::*;
 
     #[sqlx::test]
@@ -110,7 +108,7 @@ mod tests {
 
         //書籍の一覧の最初のデータから書籍IDを取得し、そのIDで書籍データを取得すると、投入した書籍データが取得できることを確認
         let book_id = res[0].id;
-        let res = repo.find_by_id(BookId).await?;
+        let res = repo.find_by_id(book_id.into()).await?;
         assert!(res.is_some());
 
         //取得した書籍データが投入した書籍データと一致することを確認
