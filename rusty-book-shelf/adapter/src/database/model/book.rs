@@ -14,7 +14,7 @@ pub struct BookRow {
 impl From<BookRow> for Book {
     fn from(value: BookRow) -> Self {
         //パターンマッチを用いて’BookRow’の中身を取り出す
-        let BookRow {
+        /*let BookRow {
             book_id,
             title,
             author,
@@ -30,7 +30,13 @@ impl From<BookRow> for Book {
             isbn,
             description,
             //publisher,
-            //published_on,
+            //published_on,*/
+        Self {
+            id: value.book_id,
+            title: value.title,
+            author: value.author,
+            isbn: value.isbn,
+            description: value.description,
         }
     }
 }
