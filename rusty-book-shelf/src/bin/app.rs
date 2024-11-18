@@ -1,14 +1,12 @@
 use adapter::database::connect_database_with;
 use anyhow::{Error, Result};
-use core::prelude::v1;
 use std::net::{Ipv4Addr, SocketAddr};
-use tracing::subscriber;
 //use api::handler::health::{health_check, health_check_db};
 use api::route::{book::build_book_routers, health::build_health_check_routers};
 use axum::Router;
 //use axum::{ extract::State, http::StatusCode };
 use anyhow::Context;
-use registry::AppRegistry;
+use registry::AppRegistry;  
 use shared::config::AppConfig;
 use tokio::net::TcpListener;
 use shared::env::{which, Environment};
@@ -52,9 +50,6 @@ async fn bootstrap() -> Result<()> {
     let app = Router::new()
         .merge(build_health_check_routers())
         .merge(build_book_routers())
-        .merge(v1::routes())
-        .merge(auth::routes())
-        .layer(cors())
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
@@ -67,7 +62,7 @@ async fn bootstrap() -> Result<()> {
         )
         .with_state(registry);
     let addr = SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 8080); //サーバーの起動
-    let listener = tokio::net::TcpListener::bind(&addr).await?;
+    let listener = TcpListener::bind(&addr).await?;
     tracing::info!("Listening on {}", addr);
     axum::serve(listener, app)
         .await
