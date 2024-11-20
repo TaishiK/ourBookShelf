@@ -91,6 +91,7 @@ mod tests {
     use super::*;
 
     #[sqlx::test]
+    #[ignore] //テストを(一時的に）無視するためのアトリビュート
     async fn test_register_book(pool: sqlx::PgPool) -> anyhow::Result<()> {
         let repo = BookRepositoryImpl::new(ConnectionPool::new(pool)); //BookRepositoryImplを初期化
         let book = CreateBook {

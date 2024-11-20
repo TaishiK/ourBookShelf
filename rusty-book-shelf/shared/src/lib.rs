@@ -1,3 +1,3 @@
 pub mod config;
-pub mod error;
 pub mod env;
+pub mod error;
