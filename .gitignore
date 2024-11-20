@@ -32,7 +32,8 @@
 *.app
 
 # targetディレクトリを無視
-/rusty-book-shelf/target
+/rusty-book-shelf/target/
+/helloworld/target/
 /.git/objects/pack/pack-*.pack
 # Cargo.lockファイルを無視
 #/rusty-book-shelf/Cargo.lock

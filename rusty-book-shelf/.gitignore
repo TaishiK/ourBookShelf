@@ -1,5 +1,5 @@
 # targetディレクトリを無視
-/target
+/target/
 # Cargo.lockファイルを無視
 #/Cargo.lock
 #Cargo.tomlディレクトリを無視
