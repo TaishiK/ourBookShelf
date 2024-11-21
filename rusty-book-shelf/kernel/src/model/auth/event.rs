@@ -2,7 +2,7 @@ use crate::model::id::UserId;
 use uuid::Uuid;
 
 pub struct CreateToken {
-    pub use_id: UserId,
+    pub user_id: UserId,
     pub access_token: String,
 }
 
