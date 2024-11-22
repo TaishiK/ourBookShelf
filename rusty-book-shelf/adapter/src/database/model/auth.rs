@@ -5,7 +5,7 @@ use kernel::model::{
     id::UserId,
 };
 use crate::redis::model::{RedisKey, RedisValue};
-//use uuid::Uuid;
+
 
 pub struct UserItem {
     pub user_id: UserId,

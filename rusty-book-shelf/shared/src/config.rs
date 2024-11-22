@@ -3,7 +3,10 @@ use anyhow::Result;
 pub struct AppConfig {
     //アプリケーションの設定を保持する構造体
     pub database: DatabaseConfig,
+    pub redis: RedisConfig,
+    pub auth: AuthConfig,
 }
+
 impl AppConfig {
     //データベース接続に必要な情報を環境変数から取り出す処理
     pub fn new() -> Result<Self> {
@@ -14,7 +17,14 @@ impl AppConfig {
             password: std::env::var("DATABASE_PASSWORD")?,
             database: std::env::var("DATABASE_NAME")?,
         };
-        Ok(Self { database })
+        let redis = RedisConfig {
+                host: std::env::var("REDIS_HOST")?,
+                port: std::env::var("REDIS_PORT")?.parse::<u16>()?,
+        };
+        let auth = AuthConfig {
+            ttl: std::env::var("AUTH_TOKEN_TTL")?.parse::<u64>()?,
+        };
+        Ok(Self { database, redis, auth, })
     }
 }
 
@@ -31,5 +41,9 @@ pub struct RedisConfig {
     //Redis接続設定を保持する構造体
     pub host: String,
     pub port: u16,
+}
+pub struct AuthConfig {
+    //認証トークンの有効期限を保持する構造体
+    pub ttl: u64,
 }
 
