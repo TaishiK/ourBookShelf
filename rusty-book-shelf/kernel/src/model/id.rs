@@ -8,13 +8,14 @@ macro_rules! define_id {
         #[serde(into = "String")]
         #[sqlx(transparent)]
         pub struct $id_type(uuid::Uuid);
-
         impl $id_type {
             pub fn new() -> Self {
                 Self(uuid::Uuid::new_v4())
             }
+            pub fn raw(self) -> uuid::Uuid {
+                self.0
+            }
         }
-
         impl Default for $id_type {
             fn default() -> Self {
                 Self::new()
@@ -22,7 +23,6 @@ macro_rules! define_id {
         }
         impl FromStr for $id_type {
             type Err = AppError;
-
             fn from_str(s: &str) -> Result<Self, Self::Err> {
                 Ok(Self(uuid::Uuid::parse_str(s)?))
             }
@@ -50,6 +50,8 @@ macro_rules! define_id {
         }
     };
 }
+
 define_id!(UserId);
 define_id!(BookId);
 define_id!(CheckoutId);
+

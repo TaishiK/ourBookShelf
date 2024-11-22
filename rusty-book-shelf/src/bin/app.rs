@@ -1,8 +1,8 @@
-use adapter::database::connect_database_with;
+use adapter::{database::connect_database_with, redis::RedisClient};
 use anyhow::{Error, Result};
-use std::net::{Ipv4Addr, SocketAddr};
+use std::{net::{Ipv4Addr, SocketAddr}, sync::Arc};
 //use api::handler::health::{health_check, health_check_db};
-use api::route::{book::build_book_routers, health::build_health_check_routers};
+use api::route::{auth, book::build_book_routers, health::build_health_check_routers};
 use axum::Router;
 //use axum::{ extract::State, http::StatusCode };
 use anyhow::Context;
@@ -16,6 +16,7 @@ use tracing::Level;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::EnvFilter;
+
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -46,10 +47,12 @@ fn init_logger() -> Result<()> {
 async fn bootstrap() -> Result<()> {
     let app_config = AppConfig::new()?; //AppConfigの生成
     let pool = connect_database_with(&app_config.database); //データベース接続
-    let registry = AppRegistry::new(pool); //AppRegistryの生成
+    let kv = Arc::new(RedisClient::new(&app_config.redis)?); //Redis接続
+    let registry = AppRegistry::new(pool, kv, app_config); //AppRegistryの生成
     let app = Router::new()
         .merge(build_health_check_routers())
         .merge(build_book_routers())
+        .merge(auth::routes())
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
