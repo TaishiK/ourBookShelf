@@ -5,7 +5,7 @@ use axum_extra::headers::authorization::Bearer;
 use axum_extra::headers::Authorization;
 use axum_extra::TypedHeader;
 use Kernel::model::auth::AccessToken;
-use kernel::model::id::UserId;  
+use kernel::model::id::UserId;
 use kernel::model::role::Role;
 use kernel::model::user::User;
 use shared::error::AppError;
@@ -27,7 +27,7 @@ impl AuthorizedUser {
 impl FromRequestParts<AppRegistry> for AuthorizedUser {
     type Rejection = AppError;
     async fn from_request_parts(
-        parts: & mut Parts, 
+        parts: & mut Parts,
         registry: &AppRegistry
     ) -> Result<Self, Self::Rejection> {
         let TypedHeader(Authorization(bearer)) = parts
@@ -35,7 +35,7 @@ impl FromRequestParts<AppRegistry> for AuthorizedUser {
             .await
             .map_err(|_| AppError::UnauthenticatedError)?;
         let access_token = AccessToken(bearer.token().to_string());
-        
+
         let user_id = registry
             .auth_repository()
             .fetch_user_id_from_token(&access_token)
