@@ -10,8 +10,8 @@ use kernel::repository::user::UserRepository;
 use shared::error::{AppError, AppResult};
 use crate::database::{model::user::UserRow, ConnectionPool};
 //use sqlx::types::Uuid;
-use sqlx::postgres::PgPoolOptions;
-use std::time::Duration;
+//use sqlx::postgres::PgPoolOptions;
+//use std::time::Duration;
 
 
 #[derive(new)]
@@ -19,7 +19,7 @@ pub struct UserRepositoryImpl {
     db: ConnectionPool,
 }
 
-impl UserRepositoryImpl {
+/*impl UserRepositoryImpl {
     pub async fn new(database_url: &str) -> Result<Self, sqlx::Error> {
         let db = PgPoolOptions::new()
             .max_connections(5)
@@ -28,16 +28,17 @@ impl UserRepositoryImpl {
             .await?;
         Ok(Self{ db })
     }
-}
+}*/
 
 #[async_trait]
 impl UserRepository for UserRepositoryImpl {
-    async fn find_current_user(&self, current_user_id: UserId) -> AppResult<Option<User>> {
+    async fn find_current_user(&self, current_user_id: UserId,) -> AppResult<Option<User>> {
+        //let user_id:Uuid = current_user_id.0.into();
         let row = sqlx::query_as!(
             UserRow,
             r#"
                 SELECT
-                u.user_id as "user_id: Uuid",
+                u.user_id,
                 u.name,
                 u.email,
                 r.name as role_name,
@@ -47,25 +48,24 @@ impl UserRepository for UserRepositoryImpl {
                 INNER JOIN roles AS r USING(role_id)
                 WHERE u.user_id = $1
             "#,
-            current_user_id.0
+            current_user_id.into()
         )
-        .fetch_optional(self.db)
+        .fetch_optional(self.db.inner_ref())
         .await
         .map_err(AppError::SpecificOperationError)?;
-        Ok(row.map(|user_row| User{
+        /*Ok(row.map(|user_row| User{
             id:user_row.user_id,
             name: user_row.name,
             email:user_row.email,
-            role: user_row.role_name,
-            created_at: user_row.created_at,
-            updated_at: user_row.updated_at,
-        }))
-        
-        
-        /*match row {
+            role: user_row.role_name.parse().unwrap(),
+            //created_at: user_row.created_at,
+            //updated_at: user_row.updated_at,
+        }))*/
+
+        match row {
             Some(r) => Ok(Some(User::try_from(r)?)),
             None => Ok(None),
-        }*/
+        }
     }
 
    

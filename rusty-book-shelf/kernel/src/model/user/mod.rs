@@ -10,7 +10,7 @@ pub struct User {
     pub role: Role,
 }
 #[derive(Debug)]
-pub struct BookOwer {
+pub struct BookOwner {
     pub id: UserId,
     pub name: String,
 }
