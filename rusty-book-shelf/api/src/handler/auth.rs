@@ -23,8 +23,13 @@ pub async fn login(
     }))
     }
 pub async fn logout(
+    user: AuthorizedUser,
     State(registry): State<AppRegistry>,
 ) -> AppResult<StatusCode> {
-    todo!()
+    registry
+        .auth_repository()
+        .delete_token(user.access_token)
+        .await?;
+    Ok(StatusCode::NO_CONTENT)
 }
 

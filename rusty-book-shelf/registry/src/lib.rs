@@ -12,6 +12,8 @@ use kernel::repository::{
 };
 use shared::config::AppConfig;
 use std::sync::Arc;
+use adapter::repository::user::UserRepositoryImpl;
+use kernel::repository::user::UserRepository;
 
 #[derive(Clone)] //↓ DIコンテナの役割を果たす構造体を定義（Dependency Injection）
 pub struct AppRegistry {
@@ -19,6 +21,7 @@ pub struct AppRegistry {
     health_check_repository: Arc<dyn HealthCheckRepository>,
     book_repository: Arc<dyn BookRepository>,
     auth_repository: Arc<dyn AuthRepository>,
+    user_repository: Arc<dyn UserRepository>,
 }
 
 impl AppRegistry {
@@ -35,11 +38,13 @@ impl AppRegistry {
             redis_client.clone(), 
             app_config.auth.ttl,
         ));
+        let user_repository = Arc::new(UserRepositoryImpl::new(pool.clone()));
 
         Self {
             health_check_repository,
             book_repository,
             auth_repository,
+            user_repository,
         }
     }
     //↓依存解決したインスタンスを返すメソッドを定義する
@@ -51,5 +56,8 @@ impl AppRegistry {
     }
     pub fn auth_repository(&self) -> Arc<dyn AuthRepository> {
         self.auth_repository.clone()
+    }
+    pub fn user_repository(&self) -> Arc<dyn UserRepository> {
+        self.user_repository.clone()
     }
 }
