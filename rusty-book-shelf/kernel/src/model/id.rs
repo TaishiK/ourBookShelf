@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use shared::error::AppError;
 use std::str::FromStr;
 
+
 macro_rules! define_id {
     ($id_type: ident) => {
         #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize, sqlx::Type)]

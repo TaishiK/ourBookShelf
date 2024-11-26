@@ -4,12 +4,13 @@ use axum::{async_trait, RequestPartsExt};
 use axum_extra::headers::authorization::Bearer;
 use axum_extra::headers::Authorization;
 use axum_extra::TypedHeader;
-use Kernel::model::auth::AccessToken;
+use kernel::model::auth::AccessToken;
 use kernel::model::id::UserId;
 use kernel::model::role::Role;
 use kernel::model::user::User;
 use shared::error::AppError;
 use registry::AppRegistry;
+//use uuid::Uuid;
 
 pub struct AuthorizedUser {//リクエストの前処理を実行後、handlerに渡すための構造体
     pub access_token: AccessToken,
@@ -41,7 +42,6 @@ impl FromRequestParts<AppRegistry> for AuthorizedUser {
             .fetch_user_id_from_token(&access_token)
             .await?
             .ok_or(AppError::UnauthenticatedError)?;
-
 
         let user = registry
             .user_repository()

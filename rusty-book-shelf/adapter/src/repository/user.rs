@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use derive_new::new;
-use uuid::Uuid;
+//use uuid::Uuid;
 use kernel::model::id::UserId;
 use kernel::model::user::{
     event::{CreateUser, DeleteUser, UpdateUserPassword, UpdateUserRole},
@@ -9,9 +9,7 @@ use kernel::model::user::{
 use kernel::repository::user::UserRepository;
 use shared::error::{AppError, AppResult};
 use crate::database::{model::user::UserRow, ConnectionPool};
-//use sqlx::types::Uuid;
-//use sqlx::postgres::PgPoolOptions;
-//use std::time::Duration;
+
 
 
 #[derive(new)]
@@ -19,48 +17,30 @@ pub struct UserRepositoryImpl {
     db: ConnectionPool,
 }
 
-/*impl UserRepositoryImpl {
-    pub async fn new(database_url: &str) -> Result<Self, sqlx::Error> {
-        let db = PgPoolOptions::new()
-            .max_connections(5)
-            //.connect_timeout(Duration::from_secs(30))
-            .connect(database_url)
-            .await?;
-        Ok(Self{ db })
-    }
-}*/
-
 #[async_trait]
 impl UserRepository for UserRepositoryImpl {
-    async fn find_current_user(&self, current_user_id: UserId,) -> AppResult<Option<User>> {
-        //let user_id:Uuid = current_user_id.0.into();
-        let row = sqlx::query_as!(
+    async fn find_current_user(&self, current_user_id:UserId) -> AppResult<Option<User>> {
+        //let user_id: Uuid = current_user_id.value();
+        let row= sqlx::query_as!(
             UserRow,
             r#"
                 SELECT
-                u.user_id,
-                u.name,
-                u.email,
-                r.name as role_name,
-                u.created_at,
-                u.updated_at
+                    u.user_id,
+                    u.name,
+                    u.email,
+                    r.name as role_name,
+                    u.created_at,
+                    u.updated_at
                 FROM users AS u
                 INNER JOIN roles AS r USING(role_id)
                 WHERE u.user_id = $1
             "#,
-            current_user_id.into()
-        )
+            current_user_id as _
+            //user_id
+       )
         .fetch_optional(self.db.inner_ref())
         .await
         .map_err(AppError::SpecificOperationError)?;
-        /*Ok(row.map(|user_row| User{
-            id:user_row.user_id,
-            name: user_row.name,
-            email:user_row.email,
-            role: user_row.role_name.parse().unwrap(),
-            //created_at: user_row.created_at,
-            //updated_at: user_row.updated_at,
-        }))*/
 
         match row {
             Some(r) => Ok(Some(User::try_from(r)?)),
