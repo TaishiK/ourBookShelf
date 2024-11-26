@@ -1,4 +1,5 @@
 use kernel::model::book::Book;
+//use kernel::model::id::BookId;
 use uuid::Uuid;
 
 pub struct BookRow {
