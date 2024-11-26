@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use derive_new::new;
-//use uuid::Uuid;
+use uuid::Uuid;
 use kernel::model::id::UserId;
 use kernel::model::user::{
     event::{CreateUser, DeleteUser, UpdateUserPassword, UpdateUserRole},
@@ -20,8 +20,9 @@ pub struct UserRepositoryImpl {
 #[async_trait]
 impl UserRepository for UserRepositoryImpl {
     async fn find_current_user(&self, current_user_id:UserId) -> AppResult<Option<User>> {
-        //let user_id: Uuid = current_user_id.value();
-        let row= sqlx::query_as!(
+        let user_id: Uuid = current_user_id.0.into();
+        let row= sqlx::query_as!
+        (
             UserRow,
             r#"
                 SELECT
@@ -35,8 +36,8 @@ impl UserRepository for UserRepositoryImpl {
                 INNER JOIN roles AS r USING(role_id)
                 WHERE u.user_id = $1
             "#,
-            current_user_id as _
-            //user_id
+            //current_user_id as _
+            user_id
        )
         .fetch_optional(self.db.inner_ref())
         .await
@@ -48,7 +49,7 @@ impl UserRepository for UserRepositoryImpl {
         }
     }
 
-   
+
     async fn find_all(&self) -> AppResult<Vec<User>> {
         todo!()
     }
