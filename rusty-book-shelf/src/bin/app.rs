@@ -2,7 +2,8 @@ use adapter::{database::connect_database_with, redis::RedisClient};
 use anyhow::{Error, Result};
 use std::{net::{Ipv4Addr, SocketAddr}, sync::Arc};
 //use api::handler::health::{health_check, health_check_db};
-use api::route::{auth, book::build_book_routers, health::build_health_check_routers};
+//use api::route::{auth, book::build_book_routers, health::build_health_check_routers};
+use api::route::{auth, v1};
 use axum::Router;
 //use axum::{ extract::State, http::StatusCode };
 use anyhow::Context;
@@ -50,8 +51,9 @@ async fn bootstrap() -> Result<()> {
     let kv = Arc::new(RedisClient::new(&app_config.redis)?); //Redis接続
     let registry = AppRegistry::new(pool, kv, app_config); //AppRegistryの生成
     let app = Router::new()
-        .merge(build_health_check_routers())
-        .merge(build_book_routers())
+        //.merge(build_health_check_routers())
+        //.merge(build_book_routers())
+        .merge(v1::routes())
         .merge(auth::routes())
         .layer(
             TraceLayer::new_for_http()

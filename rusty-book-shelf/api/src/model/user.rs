@@ -8,7 +8,7 @@ use kernel::model::{
         User,
     },
 };
-use serde::{de::value, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use strum::VariantNames;
 
 #[derive(Serialize, Deserialize, VariantNames)]
