@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use derive_new::new;
-use uuid::Uuid;
+//use uuid::Uuid;
 use kernel::model::id::UserId;
 use kernel::model::user::{
     event::{CreateUser, DeleteUser, UpdateUserPassword, UpdateUserRole},
@@ -9,7 +9,7 @@ use kernel::model::user::{
 use kernel::repository::user::UserRepository;
 use shared::error::{AppError, AppResult};
 use crate::database::{model::user::UserRow, ConnectionPool};
-
+use kernel::model::role::Role;
 
 
 #[derive(new)]
@@ -20,13 +20,13 @@ pub struct UserRepositoryImpl {
 #[async_trait]
 impl UserRepository for UserRepositoryImpl {
     async fn find_current_user(&self, current_user_id:UserId) -> AppResult<Option<User>> {
-        let user_id: Uuid = current_user_id.0.into();
+        //let user_id: Uuid = current_user_id.into();
         let row= sqlx::query_as!
         (
             UserRow,
             r#"
                 SELECT
-                    u.user_id,
+                    u.user_id as "user_id!: UserId",
                     u.name,
                     u.email,
                     r.name as role_name,
@@ -36,8 +36,8 @@ impl UserRepository for UserRepositoryImpl {
                 INNER JOIN roles AS r USING(role_id)
                 WHERE u.user_id = $1
             "#,
-            //current_user_id as _
-            user_id
+            current_user_id as _
+            //user_id
        )
         .fetch_optional(self.db.inner_ref())
         .await
@@ -51,19 +51,142 @@ impl UserRepository for UserRepositoryImpl {
 
 
     async fn find_all(&self) -> AppResult<Vec<User>> {
-        todo!()
-    }
-    async fn create(&self, _event: CreateUser,) -> AppResult<User> {
-        todo!()
-    }
-    async fn update_password(&self, _event: UpdateUserPassword,) -> AppResult<()> {
-        todo!()
-    }
-    async fn update_role(&self, _event: UpdateUserRole) -> AppResult<()> {
-        todo!()
-    }
-    async fn delete(&self, _event: DeleteUser,) -> AppResult<()> {
-        todo!()
+        let users = sqlx::query_as!(
+            UserRow,
+            r#"
+                SELECT
+                    u.user_id as "user_id!: UserId",
+                    u.name,
+                    u.email,
+                    r.name as role_name,
+                    u.created_at,
+                    u.updated_at
+                FROM users AS u
+                INNER JOIN roles AS r USING(role_id)
+                ORDER BY u.created_at DESC;
+            "#
+        )
+        .fetch_all(self.db.inner_ref())
+        .await
+        .map_err(AppError::SpecificOperationError)?
+        .into_iter()
+        .filter_map(|row| User::try_from(row).ok())
+        .collect();
+        Ok(users)
     }
 
+    async fn create(&self, event: CreateUser,) -> AppResult<User> {
+        let user_id = UserId::new();
+        let hashed_password = hash_password(&event.password)?;
+        let role = Role::User;
+
+        let res = sqlx::query!(
+            r#"
+                INSERT INTO users (user_id, name, email, password_hash, role_id)
+                SELECT $1, $2, $3, $4, role_id
+                FROM roles
+                WHERE name = $5
+            "#,
+            user_id as _, 
+            event.name,
+            event.email,
+            hashed_password,
+            role.as_ref()
+        )
+        .execute(self.db.inner_ref())
+        .await
+        .map_err(AppError::SpecificOperationError)?;
+
+        if res.rows_affected() < 1 {
+            return Err(AppError::NoRowsAffectedError(
+                "Failed to create user".to_string()));
+        }
+        Ok(User {
+            id: user_id,
+            name: event.name,
+            email: event.email,
+            role,
+        })
+    }
+    async fn update_password(&self, _event: UpdateUserPassword,) -> AppResult<()> {
+        let mut tx = self.db.begin().await?;
+        let original_password_hash = sqlx::query!(
+            r#"
+                SELECT password_hash
+                FROM users
+                WHERE user_id = $1
+            "#,
+            _event.user_id as _
+        )
+        .fetch_one(&mut tx)
+        .await
+        .map_err(AppError::SpecificOperationError)?
+        .password_hash;
+        //confirm current password
+        verify_password(&_event.current_password, &original_password_hash)?;
+        //update password
+        let new_password_hash = hash_password(&_event.new_password)?;
+        sqlx::query!(
+            r#"
+                UPDATE users
+                SET password_hash = $2
+                WHERE user_id = $1
+            "#,
+            _event.user_id as _,
+            new_password_hash,
+        )
+        .execute(&mut tx)
+        .await
+        .map_err(AppError::SpecificOperationError)?;
+        tx.commit().await.map_err(AppError::TransactionError)?;
+        Ok(())
+    }
+    async fn update_role(&self, _event: UpdateUserRole) -> AppResult<()> {
+        let res = sqlx::query!(
+            r#"
+                UPDATE users
+                SET role_id = (SELECT role_id FROM roles WHERE name = $2)
+                WHERE user_id = $1
+            "#,
+            _event.user_id as _,
+            _event.role.as_ref()
+        )
+        .execute(self.db.inner_ref())
+        .await
+        .map_err(AppError::SpecificOperationError)?;
+        if res.rows_affected() < 1 {
+            return Err(AppError::EntityNotFound(
+                "Failed to update user role".to_string(),
+            ));
+        }
+        Ok(())
+    }
+    async fn delete(&self, _event: DeleteUser) -> AppResult<()> {
+        let res = sqlx::query!(
+            r#"
+                DELETE FROM users
+                WHERE user_id = $1
+            "#,
+            _event.user_id as _
+        )
+        .execute(self.db.inner_ref())
+        .await
+        .map_err(AppError::SpecificOperationError)?;
+        if res.rows_affected() < 1 {
+            return Err(AppError::EntityNotFound(
+                "Failed to delete user".to_string(),
+            ));
+        }
+        Ok(())
+    }
+}
+fn hash_password(password: &str) -> AppResult<String> {
+    bcrypt::hash(password, bcrypt::DEFAULT_COST).map_err(AppError::from)
+}
+fn verify_password(password: &str, hash: &str) -> AppResult<()> {
+    let valid = bcrypt::verify(password, hash)?;
+    if !valid {
+        return Err(AppError::UnauthenticatedError);
+    }
+    Ok(())
 }
