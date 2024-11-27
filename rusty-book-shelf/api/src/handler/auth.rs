@@ -1,9 +1,11 @@
+use crate::{
+    extractor::AuthorizedUser,
+    model::auth::{AccessTokenResponse, LoginRequest},
+};
 use axum::{extract::State, http::StatusCode, Json};
 use kernel::model::auth::event::CreateToken;
 use registry::AppRegistry;
 use shared::error::AppResult;
-
-use crate::model::auth::{AccessTokenResponse, LoginRequest};
 
 pub async fn login(
     State(registry): State<AppRegistry>,

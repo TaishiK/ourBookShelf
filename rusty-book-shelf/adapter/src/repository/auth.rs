@@ -28,14 +28,14 @@ impl AuthRepository for AuthRepositoryImpl {
     async fn fetch_user_id_from_token(
         &self,
         access_token: &AccessToken,
-    ) -> AppResult<UserId> {
+    ) -> AppResult<Option<UserId>> {
         let key: AuthorizationKey = access_token.into();
         self .kv
             .get(&key)
             .await 
             .map(|x| x.map(AuthorizedUserId::into_inner))
-            .map_err(AppError::from)? //書籍の内容に.map_err(AppError::from)を追加
-            .ok_or(AppError::UnauthenticatedError)//書籍の内容に.ok_or(AppError::UnauthenticatedError)を追加
+            //.map_err(AppError::from)? //書籍の内容に.map_err(AppError::from)を追加
+            //.ok_or(AppError::UnauthenticatedError)//書籍の内容に.ok_or(AppError::UnauthenticatedError)を追加
     }
     async fn verify_user(
         &self,
@@ -45,9 +45,13 @@ impl AuthRepository for AuthRepositoryImpl {
         let user_item = sqlx::query_as!(
             UserItem,
             r#"
-               SELECT user_id as "user_id: UserId", password_hash FROM users WHERE email = $1;
+               SELECT 
+                    user_id as "user_id!: UserId", 
+                    password_hash 
+                FROM users 
+                WHERE email = $1;
             "#,
-            email
+            email as _
         )
         .fetch_one(self.db.inner_ref())
         .await
@@ -57,7 +61,7 @@ impl AuthRepository for AuthRepositoryImpl {
         if !valid {
             return Err(AppError::UnauthenticatedError);
         }
-        Ok(user_item.user_id.into()) //書籍内容に.into()を追加しOption<UserId>に変換
+        Ok(user_item.user_id) //書籍内容に.into()を追加しOption<UserId>に変換
     }
     async fn create_token(
         &self,
