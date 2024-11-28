@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use shared::error::AppError;
 use std::str::FromStr;
+//use uuid::Uuid;
+//use sqlx::Type;
 
 
 macro_rules! define_id {
