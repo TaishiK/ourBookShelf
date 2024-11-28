@@ -13,9 +13,7 @@ use kernel::{
     repository::book::BookRepository,
 };
 
-use shared::error::AppError;
-use shared::error::AppResult;
-
+use shared::error::{AppError, AppResult};
 use crate::database::model::book::{BookRow, PaginatedBookRow};
 use crate::database::ConnectionPool;
 
@@ -57,7 +55,7 @@ impl BookRepository for BookRepositoryImpl {
                         b.book_id AS "id: BookId"
                 FROM books AS b
                 ORDER BY b.created_at DESC
-                LIMIT $1 
+                LIMIT $1
                 OFFSET $2
             "#,
             limit,
@@ -91,7 +89,7 @@ impl BookRepository for BookRepositoryImpl {
         .fetch_all(self.db.inner_ref())
         .await
         .map_err(AppError::SpecificOperationError)?;
-        
+
         let items = rows.into_iter().map(Book::from).collect();
 
         Ok(PaginatedList {
@@ -102,7 +100,7 @@ impl BookRepository for BookRepositoryImpl {
         })
 
     }
-    
+
     async fn find_by_id(&self, book_id: BookId) -> AppResult<Option<Book>> {
         let row: Option<BookRow> = sqlx::query_as!(
             BookRow,
@@ -132,10 +130,10 @@ impl BookRepository for BookRepositoryImpl {
         let res = sqlx::query!(
             r#"
                 UPDATE books
-                SET 
-                    title = $1, 
-                    author = $2, 
-                    isbn = $3, 
+                SET
+                    title = $1,
+                    author = $2,
+                    isbn = $3,
                     description = $4
                 WHERE book_id = $5
                 AND user_id = $6
@@ -177,7 +175,7 @@ impl BookRepository for BookRepositoryImpl {
                 "specified book not found".into(),));
         }
         Ok(())
-    } 
+    }
 }
 
 #[cfg(test)]
@@ -195,7 +193,7 @@ mod tests {
         sqlx::query!(r#"INSERT INTO roles(name) VALUES('Admin'), ('User');"#)
             .execute(&pool)
             .await?;
-        let user_repo = 
+        let user_repo =
             UserRepositoryImpl::new(ConnectionPool::new(pool.clone()));
         let repo = BookRepositoryImpl::new(ConnectionPool::new(pool.clone())); //BookRepositoryImplを初期化
         let user =user_repo

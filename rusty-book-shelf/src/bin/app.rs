@@ -4,8 +4,10 @@ use std::{net::{Ipv4Addr, SocketAddr}, sync::Arc};
 //use api::handler::health::{health_check, health_check_db};
 //use api::route::{auth, book::build_book_routers, health::build_health_check_routers};
 use api::route::{auth, v1};
-use axum::Router;
-//use axum::{ extract::State, http::StatusCode };
+use axum::{
+    routing::{delete, get, post, put},
+    Router,
+};
 use anyhow::Context;
 use registry::AppRegistry;
 use shared::config::AppConfig;
@@ -17,6 +19,9 @@ use tracing::Level;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::EnvFilter;
+use crate::handler::book::{
+    delete_book, register_book, show_book, show_book_list, update_book,
+};
 
 
 #[tokio::main]

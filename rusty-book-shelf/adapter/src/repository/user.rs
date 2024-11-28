@@ -87,7 +87,7 @@ impl UserRepository for UserRepositoryImpl {
                 FROM roles
                 WHERE name = $5
             "#,
-            user_id as _, 
+            user_id as _,
             event.name,
             event.email,
             hashed_password,
@@ -108,7 +108,7 @@ impl UserRepository for UserRepositoryImpl {
             role,
         })
     }
-    async fn update_password(&self, _event: UpdateUserPassword,) -> AppResult<()> {
+    async fn update_password(&self, event: UpdateUserPassword,) -> AppResult<()> {
         let mut tx = self.db.begin().await?;
         let original_password_hash = sqlx::query!(
             r#"
@@ -116,40 +116,40 @@ impl UserRepository for UserRepositoryImpl {
                 FROM users
                 WHERE user_id = $1
             "#,
-            _event.user_id as _
+            event.user_id as _
         )
-        .fetch_one(&mut tx)
+        .fetch_one(&mut *tx)
         .await
         .map_err(AppError::SpecificOperationError)?
         .password_hash;
         //confirm current password
-        verify_password(&_event.current_password, &original_password_hash)?;
+        verify_password(&event.current_password, &original_password_hash)?;
         //update password
-        let new_password_hash = hash_password(&_event.new_password)?;
+        let new_password_hash = hash_password(&event.new_password)?;
         sqlx::query!(
             r#"
                 UPDATE users
                 SET password_hash = $2
                 WHERE user_id = $1
             "#,
-            _event.user_id as _,
+            event.user_id as _,
             new_password_hash,
         )
-        .execute(&mut tx)
+        .execute(&mut *tx)
         .await
         .map_err(AppError::SpecificOperationError)?;
         tx.commit().await.map_err(AppError::TransactionError)?;
         Ok(())
     }
-    async fn update_role(&self, _event: UpdateUserRole) -> AppResult<()> {
+    async fn update_role(&self, event: UpdateUserRole) -> AppResult<()> {
         let res = sqlx::query!(
             r#"
                 UPDATE users
                 SET role_id = (SELECT role_id FROM roles WHERE name = $2)
                 WHERE user_id = $1
             "#,
-            _event.user_id as _,
-            _event.role.as_ref()
+            event.user_id as _,
+            event.role.as_ref()
         )
         .execute(self.db.inner_ref())
         .await
@@ -161,13 +161,13 @@ impl UserRepository for UserRepositoryImpl {
         }
         Ok(())
     }
-    async fn delete(&self, _event: DeleteUser) -> AppResult<()> {
+    async fn delete(&self, event: DeleteUser) -> AppResult<()> {
         let res = sqlx::query!(
             r#"
                 DELETE FROM users
                 WHERE user_id = $1
             "#,
-            _event.user_id as _
+            event.user_id as _
         )
         .execute(self.db.inner_ref())
         .await
