@@ -64,8 +64,6 @@ async fn bootstrap() -> Result<()> {
     let kv = Arc::new(RedisClient::new(&app_config.redis)?); //Redis接続
     let registry = AppRegistry::new(pool, kv, app_config); //AppRegistryの生成
     let app = Router::new()
-        //.merge(build_health_check_routers())
-        //.merge(build_book_routers())
         .merge(v1::routes())
         .merge(auth::routes())
         .layer(
