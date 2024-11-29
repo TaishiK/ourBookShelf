@@ -1,8 +1,6 @@
 use adapter::{database::connect_database_with, redis::RedisClient};
 use anyhow::{Error, Result};
 use std::{net::{Ipv4Addr, SocketAddr}, sync::Arc};
-//use api::handler::health::{health_check, health_check_db};
-//use api::route::{auth, book::build_book_routers, health::build_health_check_routers};
 use api::route::{auth, v1};
 use axum::{
     routing::{delete, get, post, put},
@@ -19,7 +17,7 @@ use tracing::Level;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::EnvFilter;
-use crate::handler::book::{
+use api::handler::book::{
     delete_book, register_book, show_book, show_book_list, update_book,
 };
 
@@ -49,6 +47,16 @@ fn init_logger() -> Result<()> {
         .try_init()?;
 
     Ok(())
+}
+
+pub fn build_book_routers() -> Router<AppRegistry> {
+    let books_routers = Router::new()
+        .route("/", get(show_book_list))
+        .route("/", post(register_book))
+        .route("/:book_id", get(show_book))
+        .route("/:book_id", put(update_book))
+        .route("/:book_id", delete(delete_book));
+    Router::new().nest("/books", books_routers)
 }
 async fn bootstrap() -> Result<()> {
     let app_config = AppConfig::new()?; //AppConfigの生成
