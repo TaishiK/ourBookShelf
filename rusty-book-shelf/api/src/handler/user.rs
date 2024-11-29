@@ -15,6 +15,8 @@ use crate::{
         UpdateUserRoleRequestWithUserId, UserResponse, UsersResponse,
     },
 };
+use crate::model::checkout::CheckoutsResponse;
+
 pub async fn register_user(//This function is used to register a user
     user: AuthorizedUser,
     State(registry): State<AppRegistry>,
@@ -88,4 +90,16 @@ pub async fn change_password(
 pub async fn get_current_user(//This function is used to get the current user
     user: AuthorizedUser) -> Json<UserResponse> {
     Json(UserResponse::from(user.user))
+}
+
+pub async fn get_checkouts(
+    user: AuthorizedUser,
+    State(registry): State<AppRegistry>,
+) -> AppResult<Json<CheckoutsResponse>> {
+    registry
+        .checkout_repository()
+        .find_unreturned_by_user_id(user.id())
+        .await
+        .map(CheckoutsResponse::from)
+        .map(Json)
 }
