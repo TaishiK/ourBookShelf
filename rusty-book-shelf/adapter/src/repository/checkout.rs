@@ -3,7 +3,6 @@ use crate::database::{
     ConnectionPool,
 };
 use async_trait::async_trait;
-
 use derive_new::new;
 use kernel::model::checkout::{
     event::{CreateCheckout, UpdateReturned},
@@ -12,9 +11,6 @@ use kernel::model::checkout::{
 use kernel::model::id::{BookId, CheckoutId, UserId};
 use kernel::repository::checkout::CheckoutRepository;
 use shared::error::{AppError, AppResult};
-
-//use sqlx::postgres::PgPoolOptions;
-//use std::time::Duration;
 
 #[derive(new)]
 pub struct CheckoutRepositoryImpl {
@@ -93,13 +89,13 @@ impl CheckoutRepository for CheckoutRepositoryImpl {
         .await
         .map_err(AppError::SpecificOperationError)?;
 
-        if res.rows_affected() < 1 {
+        if res.rows_affected() < 1 {//追加された行がない場合
             return Err(AppError::NoRowsAffectedError(
                 "No checkout record has been created".into(),
             ));
         }
 
-        tx.commit().await.map_err(AppError::TransactionError)?;
+        tx.commit().await.map_err(AppError::TransactionError)?;//トランザクションをコミットする
 
         Ok(())
     }
@@ -198,13 +194,13 @@ impl CheckoutRepository for CheckoutRepositoryImpl {
         .await
         .map_err(AppError::SpecificOperationError)?;
 
-        if res.rows_affected() < 1 {
+        if res.rows_affected() < 1 {//削除された行がない場合
             return Err(AppError::NoRowsAffectedError(
                 "No checkout record has been deleted".into(),
             ));
         }
 
-        tx.commit().await.map_err(AppError::TransactionError)?;
+        tx.commit().await.map_err(AppError::TransactionError)?;//トランザクションをコミットする
 
         Ok(())
     }
@@ -214,8 +210,8 @@ impl CheckoutRepository for CheckoutRepositoryImpl {
         // checkouts テーブルにあるレコードを全件抽出する
         // books テーブルと INNER JOIN し、蔵書の情報も一緒に抽出する
         // 出力するレコードは、貸出日の古い順に並べる
-        //let rows: Vec<CheckoutRow> = sqlx::query_as!(
-        sqlx::query_as!( 
+        //sqlx::query_as!(
+        let res = sqlx::query_as!(
             CheckoutRow,
             r#"
                 SELECT
@@ -226,16 +222,17 @@ impl CheckoutRepository for CheckoutRepositoryImpl {
                     b.title,
                     b.author,
                     b.isbn
-                FROM checkouts AS c
+                FROM checkouts AS c;
                 INNER JOIN books AS b USING(book_id)
                 ORDER BY c.checked_out_at ASC
-            "#,
+                ;
+            "#
         )
-        .fetch_all(self.db.inner_ref())
+        .fetch_all(self.db.inner_ref()) //AS b (USING(book_id)) で結合したテーブルを取得
         .await
-        .map(|rows| rows.into_iter().map(Checkout::from).collect())
+        //.map(|rows| rows.into_iter().map(Checkout::from).collect())
         .map_err(AppError::SpecificOperationError)?;
-
+        Ok(res.into_iter().map(Checkout::from).collect::<Result<Vec<_>, _>>()?)
     }
 
     // ユーザー ID に紐づく未返却の貸出情報を取得する
@@ -333,16 +330,16 @@ impl CheckoutRepositoryImpl {
             CheckoutRow,
             r#"
                 SELECT
-                    c.checkout_id,
-                    c.book_id,
-                    c.user_id,
-                    c.checked_out_at,
-                    b.title,
-                    b.author,
-                    b.isbn
+                c.checkout_id,
+                c.book_id,
+                c.user_id,
+                c.checked_out_at,
+                b.title,
+                b.author,
+                b.isbn
                 FROM checkouts AS c
-                INNER JOIN books AS b ON c.book_id = b.book_id
-                WHERE c.book_id = $1 AND c.returned_at IS NULL
+                INNER JOIN books AS b USING(book_id)
+                WHERE c.book_id = $1
             "#,
             book_id as _,
         )
