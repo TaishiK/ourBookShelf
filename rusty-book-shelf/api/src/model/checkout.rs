@@ -7,7 +7,7 @@ use serde::Serialize;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct CheckousResponse {
+pub struct CheckoutsResponse {
     pub items: Vec<CheckoutResponse>,
 }
 impl From<Vec<Checkout>> for CheckoutsResponse {
@@ -17,7 +17,7 @@ impl From<Vec<Checkout>> for CheckoutsResponse {
         }
     }
 }
-#[desrive(Serialize)]
+#[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CheckoutResponse {
     pub id: CheckoutId,

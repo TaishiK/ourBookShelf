@@ -1,13 +1,17 @@
-use crate::{extractor::AuthorizedUser, model::checkout::CheckoutResponse};
+use crate::{extractor::AuthorizedUser,
+         model::checkout::CheckoutsResponse, //CheckoutResponse},
+};
 use axum::{
     extract::{Path, State},
     http::StatusCode,
     Json,
 };
+use chrono::Utc;
 use kernel::model::{
     checkout::event::{CreateCheckout, UpdateReturned},
-    id::{BookId, CheckoutId}, user,
+    id::{BookId, CheckoutId}, 
 };
+
 use registry::AppRegistry;
 use shared::error::AppResult;
 
@@ -17,7 +21,7 @@ pub async fn checkout_book(
     State(registry): State<AppRegistry>,
 ) -> AppResult<StatusCode> {
     let create_checkout_history = 
-        CreateCheckout::new(book_id, user.id, Utc::now());
+        CreateCheckout::new(book_id, user.id(), Utc::now());
     registry
         .checkout_repository()
         .create(create_checkout_history)
@@ -33,7 +37,7 @@ pub async fn return_book(
     let update_returned = UpdateReturned::new(
         checkout_id, 
         book_id, 
-        user.id, 
+        user.id(), 
         chrono::Utc::now(),
     );
     registry
@@ -45,7 +49,7 @@ pub async fn return_book(
 pub async fn show_checked_out_list(
     _user: AuthorizedUser,
     State(registry): State<AppRegistry>,
-) -> AppResult<Json<CheckoutResponse>> {
+) -> AppResult<Json<CheckoutsResponse>> {
     registry
         .checkout_repository()
         .find_unreturned_all()
