@@ -210,8 +210,8 @@ impl CheckoutRepository for CheckoutRepositoryImpl {
         // checkouts テーブルにあるレコードを全件抽出する
         // books テーブルと INNER JOIN し、蔵書の情報も一緒に抽出する
         // 出力するレコードは、貸出日の古い順に並べる
-        //sqlx::query_as!(
-        let res = sqlx::query_as!(
+        sqlx::query_as!(
+        //let res = sqlx::query_as!(
             CheckoutRow,
             r#"
                 SELECT
@@ -222,7 +222,7 @@ impl CheckoutRepository for CheckoutRepositoryImpl {
                     b.title,
                     b.author,
                     b.isbn
-                FROM checkouts AS c;
+                FROM checkouts AS c
                 INNER JOIN books AS b USING(book_id)
                 ORDER BY c.checked_out_at ASC
                 ;
@@ -230,9 +230,9 @@ impl CheckoutRepository for CheckoutRepositoryImpl {
         )
         .fetch_all(self.db.inner_ref()) //AS b (USING(book_id)) で結合したテーブルを取得
         .await
-        //.map(|rows| rows.into_iter().map(Checkout::from).collect())
-        .map_err(AppError::SpecificOperationError)?;
-        Ok(res.into_iter().map(Checkout::from).collect::<Result<Vec<_>, _>>()?)
+        .map(|rows| rows.into_iter().map(Checkout::from).collect())
+        .map_err(AppError::SpecificOperationError)
+        //Ok(res.into_iter().map(Checkout::from).collect::<Result<Vec<_>, _>>()?)
     }
 
     // ユーザー ID に紐づく未返却の貸出情報を取得する

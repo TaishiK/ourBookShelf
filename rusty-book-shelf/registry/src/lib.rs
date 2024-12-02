@@ -14,6 +14,8 @@ use shared::config::AppConfig;
 use std::sync::Arc;
 use adapter::repository::user::UserRepositoryImpl;
 use kernel::repository::user::UserRepository;
+use adapter::repository::checkout::CheckoutRepositoryImpl;
+use kernel::repository::checkout::CheckoutRepository;
 
 #[derive(Clone)] //↓ DIコンテナの役割を果たす構造体を定義（Dependency Injection）
 pub struct AppRegistry {
