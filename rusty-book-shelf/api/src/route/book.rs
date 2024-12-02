@@ -7,7 +7,7 @@ use crate::handler::{
     },
 };
 use axum::{
-    routing::{get, post},
+    routing::{delete, get, post, put},
     Router,
 };
 use registry::AppRegistry;
@@ -18,14 +18,14 @@ pub fn build_book_routers() -> Router<AppRegistry> {
         .route("/", post(register_book))
         .route("/", get(show_book_list))
         .route("/:book_id", get(show_book))
-        .route("/:book_id", post(update_book))
-        .route("/:book_id", post(delete_book));
+        .route("/:book_id", put(update_book))
+        .route("/:book_id", delete(delete_book));
     let checkout_routers = Router::new()
         .route("/checkouts", get(show_checked_out_list))
         .route("/:book_id/checkout", post(checkout_book))
         .route(
             "/:book_id/checkouts/:checkout_id/returned",
-            post(return_book), //書籍ではputメソッドを使っているが、ここではpostメソッドを使っている
+            put(return_book), //書籍ではputメソッドを使っているが、ここではpostメソッドを使っている
         )
         .route("/:book_id/checkout-history", get(checkout_history));
      
