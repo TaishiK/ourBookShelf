@@ -2,7 +2,7 @@ use adapter::{database::connect_database_with, redis::RedisClient};
 use anyhow::{Error, Result};
 use std::{net::{Ipv4Addr, SocketAddr}, sync::Arc};
 use api::route::{auth, v1};
-use axum::Router;
+use axum::{http::Method, Router};
 use anyhow::Context;
 use registry::AppRegistry;
 use shared::config::AppConfig;
@@ -14,7 +14,19 @@ use tracing::Level;
 use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::EnvFilter;
+use tower_http::cors::{self, CorsLayer};
 
+fn cors() -> CorsLayer {//CORSの設定-フロントエンドとの通信を許可
+    CorsLayer::new()
+        .allow_headers(cors::Any)
+        .allow_methods([
+            Method::GET,
+            Method::POST,
+            Method::DELETE,
+            Method::PUT
+        ])
+        .allow_origin(cors::Any)
+}
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -51,6 +63,7 @@ async fn bootstrap() -> Result<()> {
     let app = Router::new()
         .merge(v1::routes())
         .merge(auth::routes())
+        .layer(cors())//CORSの設定-フロントエンドとの通信を許可
         .layer(
             TraceLayer::new_for_http()
                 .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
