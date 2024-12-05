@@ -16,6 +16,17 @@ FROM
     roles
 WHERE
     name Like 'Admin';
+INSERT INTO
+    users (name, email, password_hash, role_id)
+SELECT
+    '九里大志',
+    'Taishi.Kunori@sony.com',
+    '$2b$12$vlJfFk5EBJFACvRx/0iOquBu7To9Qon6VxpFI26xLBgVxk5XDpyOe',
+    role_id
+FROM
+    roles
+WHERE
+    name Like 'User';
 
 INSERT INTO
     books (title, author, isbn, description, user_id, created_at)
@@ -27,6 +38,22 @@ SELECT
     user_id,
     NOW()
 FROM
+    users
+WHERE
+    name Like 'Eleazar Fig';
+INSERT INTO
+    books (title, author, isbn, description, user_id, created_at)
+SELECT
+    'RustによるWebアプリケーション開発　設計からリリース・運用まで',
+    '豊田勇貴・松本健太郎・吉川哲史',
+    '9784065369579'
+    '★Rustによるアプリケーション開発のベストプラクティス！
+Rustを現場で使うときがきた! Rust経験豊富な筆者が、貴重な知識とテクニックを惜しみなく伝授。
+「蔵書管理アプリケーション」の実装を通じて、Rustによる設計、開発、保守、運用までをハンズオンで学ぶ！
+コードも丁寧に解説。',
+    user_id,
+    NOW()
+FROMq
     users
 WHERE
     name Like 'Eleazar Fig';

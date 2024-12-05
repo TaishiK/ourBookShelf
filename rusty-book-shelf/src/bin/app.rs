@@ -68,7 +68,7 @@ async fn bootstrap() -> Result<()> {
             TraceLayer::new_for_http()
                 .make_span_with(DefaultMakeSpan::new().level(Level::INFO))
                 .on_request(DefaultOnRequest::new().level(Level::INFO))
-                .on_response(
+                .on_response (
                     DefaultOnResponse::new()
                         .level(Level::INFO)
                         .latency_unit(LatencyUnit::Millis),
