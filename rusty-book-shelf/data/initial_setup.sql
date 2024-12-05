@@ -8,7 +8,7 @@ ON CONFLICT DO NOTHING;
 INSERT INTO
     users (name, email, password_hash, role_id)
 SELECT
-    'Eleazar Fig', 
+    'Eleazar Fig',
     'eleazar.fig@example.com',
     '$2b$12$vlJfFk5EBJFACvRx/0iOquBu7To9Qon6VxpFI26xLBgVxk5XDpyOe',
     role_id
@@ -16,6 +16,18 @@ FROM
     roles
 WHERE
     name Like 'Admin';
+
+INSERT INTO
+    users (name, email, password_hash, role_id)
+SELECT
+    '九里大志',
+    'Taishi.Kunori@sony.com',
+    '$2b$12$vlJfFk5EBJFACvRx/0iOquBu7To9Qon6VxpFI26xLBgVxk5XDpyOe',
+    role_id
+FROM
+    roles
+WHERE
+    name Like 'User';
 
 INSERT INTO
     books (title, author, isbn, description, user_id, created_at)
@@ -31,3 +43,16 @@ FROM
 WHERE
     name Like 'Eleazar Fig';
 
+INSERT INTO
+    books (title, author, isbn, description, user_id, created_at)
+SELECT
+    'RustによるWebアプリケーション開発 設計からリリース・運用まで',
+    '豊田優貴・松本健太郎・吉川哲史',
+    '9784065369579',
+    'Rustによるアプリケーション開発のベストプラクティス! Rustを現場で使うときがきた!',
+    user_id,
+    NOW()
+FROM
+    users
+WHERE
+    name Like 'Eleazar Fig';

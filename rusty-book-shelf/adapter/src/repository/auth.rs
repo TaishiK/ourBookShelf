@@ -32,7 +32,7 @@ impl AuthRepository for AuthRepositoryImpl {
         let key: AuthorizationKey = access_token.into();
         self .kv
             .get(&key)
-            .await 
+            .await
             .map(|x| x.map(AuthorizedUserId::into_inner))
             //.map_err(AppError::from)? //書籍の内容に.map_err(AppError::from)を追加
             //.ok_or(AppError::UnauthenticatedError)//書籍の内容に.ok_or(AppError::UnauthenticatedError)を追加
@@ -45,10 +45,10 @@ impl AuthRepository for AuthRepositoryImpl {
         let user_item = sqlx::query_as!(
             UserItem,
             r#"
-               SELECT 
-                    user_id as "user_id!: UserId", 
-                    password_hash 
-                FROM users 
+               SELECT
+                    user_id as "user_id!: UserId",
+                    password_hash
+                FROM users
                 WHERE email = $1;
             "#,
             email as _
@@ -71,7 +71,7 @@ impl AuthRepository for AuthRepositoryImpl {
         self.kv.set_ex(&key, &value, self.ttl).await?;
         Ok(key.into())
     }
-    
+
     async fn delete_token(
         &self,
         access_token: AccessToken,
