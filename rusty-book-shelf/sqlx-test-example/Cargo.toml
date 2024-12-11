@@ -1,0 +1,10 @@
+[package]
+name = "sqlx-test-example"
+version = "0.1.0"
+edition.workspace = true
+publish.workspace = true
+license.workspace = true
+
+[dependencies]
+postgres = "0.19.9"
+sqlx = { workspace = true, features = ["runtime-tokio"] }
