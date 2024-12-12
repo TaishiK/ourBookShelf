@@ -229,12 +229,12 @@ impl BookRepositoryImpl {
         .into_iter()
         .map(|checkout| (checkout.book_id, Checkout::from(checkout)))
         .collect();
-        
+
         Ok(res)
     }
 }
 
-/* 
+/*
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -304,10 +304,11 @@ mod tests {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::str::FromStr;
     #[sqlx::test(fixtures("common", "book"))]
     async fn test_update_book(pool: sqlx::PgPool) -> anyhow::Result<()> {
         let repo = BookRepositoryImpl::new(ConnectionPool::new(pool.clone()));
-        let book_id = BookId::from_str("987654321").unwrap();
+        let book_id = BookId::from_str("9890736e-a4e4-461a-a77d-eac3517ef11b").unwrap();
         let book = repo.find_by_id(book_id).await?.unwrap();
         const NEW_AUTHOR: &str = "new author after update";
         assert_ne!(book.author, NEW_AUTHOR);

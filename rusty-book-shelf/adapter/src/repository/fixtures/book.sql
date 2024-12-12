@@ -9,7 +9,7 @@ INSERT INTO books (
     updated_at
 )
 VALUES (
-    '987654321',
+    '9890736e-a4e4-461a-a77d-eac3517ef11b',
     '実践Rustプログラミング入門',
     '初田直也他',
     '978-4798061702',
