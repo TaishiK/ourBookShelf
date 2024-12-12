@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 
+#[mockall::automock]
 #[async_trait] //async-traitマクロを使用
 pub trait HealthCheckRepository: Send + Sync {
     //Send と Sync はマーカートレイト

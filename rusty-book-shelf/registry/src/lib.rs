@@ -18,7 +18,7 @@ use adapter::repository::checkout::CheckoutRepositoryImpl;
 use kernel::repository::checkout::CheckoutRepository;
 
 #[derive(Clone)] //↓ DIコンテナの役割を果たす構造体を定義（Dependency Injection）
-pub struct AppRegistry {
+pub struct AppRegistryImpl {
     //cloneはAppRegistryをコピー可能にする　のちにaxum側で使う
     health_check_repository: Arc<dyn HealthCheckRepository>,
     book_repository: Arc<dyn BookRepository>,
@@ -27,7 +27,7 @@ pub struct AppRegistry {
     checkout_repository: Arc<dyn CheckoutRepository>,
 }
 
-impl AppRegistry {
+impl AppRegistryImpl {
     pub fn new(
         pool: ConnectionPool,
         redis_client: Arc<RedisClient>,
@@ -70,3 +70,32 @@ impl AppRegistry {
         self.checkout_repository.clone()
     }
 }
+
+#[mockall::automock]
+pub trait AppRegistryExt {
+    fn health_check_repository(&self) -> Arc<dyn HealthCheckRepository>;
+    fn book_repository(&self) -> Arc<dyn BookRepository>;
+    fn auth_repository(&self) -> Arc<dyn AuthRepository>;
+    fn user_repository(&self) -> Arc<dyn UserRepository>;
+    fn checkout_repository(&self) -> Arc<dyn CheckoutRepository>;
+}
+
+impl AppRegistryExt for AppRegistryImpl {
+    fn health_check_repository(&self) -> Arc<dyn HealthCheckRepository> {
+        self.health_check_repository.clone()
+    }
+    fn book_repository(&self) -> Arc<dyn BookRepository> {
+        self.book_repository.clone()
+    }
+    fn auth_repository(&self) -> Arc<dyn AuthRepository> {
+        self.auth_repository.clone()
+    }
+    fn user_repository(&self) -> Arc<dyn UserRepository> {
+        self.user_repository.clone()
+    }
+    fn checkout_repository(&self) -> Arc<dyn CheckoutRepository> {
+        self.checkout_repository.clone()
+    }
+}
+
+pub type AppRegistry = Arc<dyn AppRegistryExt + Send + Sync + 'static>;

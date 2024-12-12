@@ -11,6 +11,7 @@ use crate::model::{
 use async_trait::async_trait;
 use shared::error::AppResult; //anyhowをAppResultに変更
 
+#[mockall::automock]
 #[async_trait]
 pub trait BookRepository: Send + Sync {
     async fn find_all(

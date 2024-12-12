@@ -102,7 +102,7 @@ impl From<BookListQuery> for BookListOptions {
 }
 
 
-#[derive(Debug, Serialize)] //responseの値（Rustの構造体）をJson形式に変換（serialize)する
+#[derive(Debug, Deserialize, Serialize)] //responseの値（Rustの構造体）をJson形式に変換（serialize)する
 #[serde(rename_all = "camelCase")] //frontend側(Javascript)との連携のためにキャメルケースに変換
 pub struct BookResponse {
     pub id: BookId,
@@ -136,7 +136,7 @@ impl From<Book> for BookResponse {
         }
     }
 }
-#[derive(Debug, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PaginatedBookResponse {
     pub total: i64,
@@ -161,7 +161,7 @@ impl From<PaginatedList<Book>> for PaginatedBookResponse {
     }
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BookCheckoutResponse {
     pub id: CheckoutId,

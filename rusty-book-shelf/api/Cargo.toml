@@ -22,6 +22,7 @@ axum-extra.workspace = true
 tokio-stream.workspace = true
 garde.workspace = true
 uuid.workspace = true
+oneshot = "0.1.8"
 
 [dev-dependencies]
 anyhow.workspace = true
