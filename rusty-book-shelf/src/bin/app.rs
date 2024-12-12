@@ -4,7 +4,8 @@ use std::{net::{Ipv4Addr, SocketAddr}, sync::Arc};
 use api::route::{auth, v1};
 use axum::{http::Method, Router};
 use anyhow::Context;
-use registry::AppRegistry;
+//use registry::AppRegistry;
+use registry::AppRegistryImpl;
 use shared::config::AppConfig;
 use shared::env::{which, Environment};
 use tokio::net::TcpListener;
@@ -59,7 +60,8 @@ async fn bootstrap() -> Result<()> {
     let app_config = AppConfig::new()?; //AppConfigの生成
     let pool = connect_database_with(&app_config.database); //データベース接続
     let kv = Arc::new(RedisClient::new(&app_config.redis)?); //Redis接続
-    let registry = AppRegistry::new(pool, kv, app_config); //AppRegistryの生成
+    //let registry = AppRegistry::new(pool, kv, app_config); //AppRegistryの生成
+    let registry = Arc::new(AppRegistryImpl::new(pool, kv, app_config)); //AppRegistryの生成
     let app = Router::new()
         .merge(v1::routes())
         .merge(auth::routes())
