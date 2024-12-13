@@ -14,7 +14,7 @@ use kernel::{
 };
 
 use shared::error::{AppError, AppResult};
-use sqlx::pool;
+//use sqlx::pool;
 use crate::database::model::book::{BookRow, PaginatedBookRow};
 use crate::database::ConnectionPool;
 
@@ -305,6 +305,9 @@ mod tests {
 mod tests {
     use super::*;
     use std::str::FromStr;
+    //use log::{debug, info, log_enabled, info, Level};
+
+    
     #[sqlx::test(fixtures("common", "book"))]
     async fn test_update_book(pool: sqlx::PgPool) -> anyhow::Result<()> {
         let repo = BookRepositoryImpl::new(ConnectionPool::new(pool.clone()));
@@ -313,17 +316,19 @@ mod tests {
         const NEW_AUTHOR: &str = "new author after update";
         assert_ne!(book.author, NEW_AUTHOR);
         let update_book = UpdateBook {
-            book_id: book_id,
+            book_id: book.id,
             title: book.title,
             author: NEW_AUTHOR.into(),
             isbn: book.isbn,
             description: book.description,
-            requested_user: UserId::from_str("123456789").unwrap(),
+            requested_user: UserId::from_str("5b4c96ac-316a-4bee-8e69-cac5eb84ff4c").unwrap(),
     };
     repo.update(update_book).await.unwrap();
 
     let book = repo.find_by_id(book_id).await?.unwrap();
+    //debug!("book.author: {}", NEW_AUTHOR);
     assert_eq!(book.author, NEW_AUTHOR);
+
     Ok(())
     }
 }
