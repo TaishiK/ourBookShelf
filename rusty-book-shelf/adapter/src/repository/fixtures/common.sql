@@ -1,10 +1,11 @@
-CREATE TABLE IF NOT EXISTS books (
-  book_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  title VARCHAR(255) NOT NULL,
-  author VARCHAR(255) NOT NULL,
-  isbn VARCHAR(255) NOT NULL,
-  description VARCHAR(1024) NOT NULL,
-  user_id UUID NOT NULL, -- この行を追加
-  created_at TIMESTAMP(3) WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-  updated_at TIMESTAMP(3) WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-);
+INSERT INTO roles(name)
+VALUES ('Admin'), ('User');
+
+INSERT INTO users(user_id, name, email, password_hash, role_id)
+SELECT
+    '5b4c96ac-316a-4bee-8e69-cac5eb84ff4c'
+    , 'Eleazar Fig'
+    , 'eleazar.fig@example.com'
+    , 'atodehenkou'
+    , role_id
+FROM roles WHERE name = 'Admin';
