@@ -58,7 +58,7 @@ async fn show_book_list_with_query_200 (
     Arc::new(mock)
 });
     // テスト対象のルーターを作成
-    let app: axum::Router = make_router(fixture);
+    let app: axum::Router = make_router(fixture);//fixtureを使ってrouterを作成
     // テスト対象のリクエストを作成・送信し、レスポンスのステータスコードを検証する
     let req = Request::get(&v1(path)).bearer().body(Body::empty())?;
     let resp = app.oneshot(req).await?;
@@ -68,6 +68,6 @@ async fn show_book_list_with_query_200 (
     assert_eq!(result.limit, expected_limit);
     assert_eq!(result.offset, expected_offset);
     //testが成功していることを示す
-    Ok(())    
+    Ok(())
 
 }

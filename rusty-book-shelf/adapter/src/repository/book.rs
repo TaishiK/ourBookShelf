@@ -305,9 +305,7 @@ mod tests {
 mod tests {
     use super::*;
     use std::str::FromStr;
-    //use log::{debug, info, log_enabled, info, Level};
 
-    
     #[sqlx::test(fixtures("common", "book"))]
     async fn test_update_book(pool: sqlx::PgPool) -> anyhow::Result<()> {
         let repo = BookRepositoryImpl::new(ConnectionPool::new(pool.clone()));
@@ -326,7 +324,7 @@ mod tests {
     repo.update(update_book).await.unwrap();
 
     let book = repo.find_by_id(book_id).await?.unwrap();
-    //debug!("book.author: {}", NEW_AUTHOR);
+    println!("book.author: {}", NEW_AUTHOR);
     assert_eq!(book.author, NEW_AUTHOR);
 
     Ok(())
