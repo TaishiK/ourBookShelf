@@ -24,8 +24,8 @@ use kernel::{
 #[case("/books?limit=50&offset=20", 50, 20)]
 #[case("/books?offset=20", 20, 20)]
 #[tokio::test]
-async fn show_book_list_with_query_200 (
-    mut fixture: registry:: MockAppRegistryExt,
+async fn show_book_list_with_query_200 (//rstestでパラメータ化テストを行う
+    mut fixture: registry:: MockAppRegistryExt,//fixtureを受け取る
     #[case] path: &str,
     #[case] expected_limit: i64,
     #[case] expected_offset: i64,
@@ -62,11 +62,15 @@ async fn show_book_list_with_query_200 (
     // テスト対象のリクエストを作成・送信し、レスポンスのステータスコードを検証する
     let req = Request::get(&v1(path)).bearer().body(Body::empty())?;
     let resp = app.oneshot(req).await?;
+    println!("status: {}", resp.status());
     assert_eq!(resp.status(), axum::http::StatusCode::OK);
     // レスポンスボディをデシリアライズして検証する
     let result = deserialize_json!(resp, PaginatedBookResponse);
-    assert_eq!(result.limit, expected_limit);
-    assert_eq!(result.offset, expected_offset);
+    println!("title: {}", result.items[0].title);
+    println!("author: {}", result.items[0].author);
+    println!("description: {}", result.items[0].description);
+    assert_eq!(result.limit, expected_limit);//limitが期待通りか検証
+    assert_eq!(result.offset, expected_offset);//offsetが期待通りか検証
     //testが成功していることを示す
     Ok(())
 

@@ -109,9 +109,9 @@ install_crate = { crate_name = "cargo-nextest", binary = "cargo", test_arg = [
 command = "cargo"
 args = [
   "nextest", "run", "--workspace",
-  "--status-level", "all", "--test-threads=1",
+  "--status-level", "all", "--nocapture", #"--test-threads=1",
 ]
-
+ 
 [tasks.clippy-ci]
 extend = "set-env-local"
 dependencies = ["before-build"]
@@ -119,7 +119,7 @@ command = "cargo"
 args = ["clippy", "--", "--no-deps", "-Dwarnings"]
 
 [tasks.test-ci]
-dependencies = ["before-build"]
+dependencies = ["before-build"] 
 run_task = "test"
 
 

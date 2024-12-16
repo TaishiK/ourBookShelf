@@ -308,8 +308,9 @@ mod tests {
 
     #[sqlx::test(fixtures("common", "book"))]
     async fn test_update_book(pool: sqlx::PgPool) -> anyhow::Result<()> {
+        println!("test_update_book start!");
         let repo = BookRepositoryImpl::new(ConnectionPool::new(pool.clone()));
-        let book_id = BookId::from_str("9890736e-a4e4-461a-a77d-eac3517ef11b").unwrap();
+        let book_id = BookId::from_str("17afb850-c786-49c5-a303-a3a443a2212c").unwrap();
         let book = repo.find_by_id(book_id).await?.unwrap();
         const NEW_AUTHOR: &str = "new author after update";
         assert_ne!(book.author, NEW_AUTHOR);
@@ -324,7 +325,9 @@ mod tests {
     repo.update(update_book).await.unwrap();
 
     let book = repo.find_by_id(book_id).await?.unwrap();
-    println!("book.author: {}", NEW_AUTHOR);
+    println!("title: {}", book.title);
+    println!("author: {}", NEW_AUTHOR);
+    println!("description: {}", book.description);
     assert_eq!(book.author, NEW_AUTHOR);
 
     Ok(())
