@@ -16,6 +16,9 @@ use tracing_subscriber::layer::SubscriberExt;
 use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::EnvFilter;
 use tower_http::cors::{self, CorsLayer};
+use opentelemetry::global;
+use opentelemetry_jaeger::propagator::JaegerPropagator;
+
 
 fn cors() -> CorsLayer {//CORSの設定-フロントエンドとの通信を許可
     CorsLayer::new()
@@ -40,6 +43,23 @@ fn init_logger() -> Result<()> {
         Environment::Development => "debug",
         Environment::Production => "info",
     };
+    //環境変数の読み込み
+    let host = std::env::var("JAEGER_HOST")?;
+    let port = std::env::var("JAEGER_PORT")?;
+    let endpoint = format!("http://{host}:{port}/api/traces");
+
+    global::set_text_map_propagator(JaegerPropagator::new());
+
+    let tracer = opentelemetry_jaeger::new_pipeline()
+        .with_collector_endpoint(endpoint)
+        .with_service_name("book-shelf")
+        .with_auto_split_batch(true)
+        .with_max_packet_size(8192)
+        .install_simple()?;
+
+    let opentelemetry = tracing_opentelemetry::layer().with_tracer(tracer);
+
+
     let env_filter = //ログレベルを設定
         EnvFilter::try_from_default_env().unwrap_or_else(|_| log_level.into());
 
@@ -47,6 +67,8 @@ fn init_logger() -> Result<()> {
         .with_file(true)
         .with_line_number(true)
         .with_target(false);
+    #[cfg(not(debug_assertions))]//デバッグモードでない場合（＝リリースビルド）
+    let subscriber = subscriber.json();//本番環境（リリースビルド）ではjson形式でログが出力される
 
     tracing_subscriber::registry()
         .with(subscriber)

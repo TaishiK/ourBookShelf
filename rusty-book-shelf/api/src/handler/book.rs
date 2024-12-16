@@ -42,18 +42,27 @@ pub async fn show_book_list(
         .map(Json)
 }
 
+#[tracing::instrument(
+    skip(_user, registry),
+    fields(
+        user_id = %_user.user.id.to_string()
+    )
+)]
 pub async fn show_book(
     _user: AuthorizedUser,
     Path(book_id): Path<BookId>,
     State(registry): State<AppRegistry>,
-) -> Result<Json<BookResponse>, AppError> {
+) -> AppResult<Json<BookResponse>> {
+    tracing::info!("INSERTED LOG MESSAGE HERE!!");
     registry
         .book_repository()
         .find_by_id(book_id)
         .await
         .and_then(|bc| match bc {
             Some(bc) => Ok(Json(bc.into())),
-            None => Err(AppError::EntityNotFound("not found".into())),
+            None => Err(AppError::EntityNotFound(
+                "The specified book was not found".to_string(),
+            )),
         })
 }
 
