@@ -24,8 +24,8 @@ kernel = { path = "./kernel" }
 shared = { path = "./shared" }
 registry = { path = "./registry" }
 async-trait = "0.1.74"
-anyhow = "1.0.75"
-axum = { version = "0.7.5", features = ["macros"] }
+anyhow = { version = "1.0.75", default-features = false }
+axum = { version = "0.7.5", features = ["http1", "json", "query", "tokio"], default-features = false }
 derive-new = "0.6.0"
 utoipa = { version = "4.1.0", features = ["axum_extras", "uuid", "chrono"] }
 uuid = { version = "1.4.0", features = ["v4", "serde"] }
@@ -45,11 +45,11 @@ thiserror = "1.0.44"
 tokio = { version = "1.37.0", features = ["full"] }
 mockall = "0.11.4"
 redis = { version = "0.25.3", features = ["tokio-rustls-comp"] }
-bcrypt = "0.15.0"
+bcrypt = { version = "0.15.0", features = ["std"], default-features = false }
 itertools = "0.11.0"
 tower = "0.5.1"
 tracing = { version = "0.1.37", features = ["log"] }
-axum-extra = { version = "0.9.3", features = ["typed-header"] }
+axum-extra = { version = "0.9.3", features = ["typed-header"], default-features = false }
 tokio-stream = "0.1.14"
 garde = { version = "0.18.0", features = ["derive", "email"] }
 
@@ -62,17 +62,17 @@ registry.workspace = true
 anyhow.workspace = true
 axum.workspace = true
 utoipa.workspace = true
-utoipa-redoc = { version = "2.0.0", features = ["axum"] }
+utoipa-redoc = "2.0.0"
 tokio.workspace = true
 tracing.workspace = true
-tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
-opentelemetry = "0.16"
-tracing-opentelemetry = "0.16"
-opentelemetry-jaeger = { version = "0.16", features = ["rt-tokio"] }
-opentelemetry_sdk = { version = "0.16", features = ["rt-tokio"] }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"], default-features = false }
+opentelemetry = { version = "0.21.0", default-features = false }
+tracing-opentelemetry = { version = "0.22.0", default-features = false }
+opentelemetry-jaeger = "0.20.0"
+opentelemetry_sdk = { version = "0.21.2", default-features = false }
 chrono.workspace = true
 sqlx = { workspace = true, features = ["chrono"] }
-env_logger = "0.11.5"
+env_logger = { version = "0.11.5", default-features = false }
 
 [profile.dev.package.sqlx-macros]
 opt-level = 3

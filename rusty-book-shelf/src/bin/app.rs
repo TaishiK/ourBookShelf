@@ -17,7 +17,7 @@ use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::EnvFilter;
 use tower_http::cors::{self, CorsLayer};
 use opentelemetry::global;
-use opentelemetry_jaeger::propagator::JaegerPropagator;
+//use JaegerPropagator;
 
 
 fn cors() -> CorsLayer {//CORSの設定-フロントエンドとの通信を許可
@@ -46,12 +46,12 @@ fn init_logger() -> Result<()> {
     //環境変数の読み込み
     let host = std::env::var("JAEGER_HOST")?;
     let port = std::env::var("JAEGER_PORT")?;
-    let endpoint = format!("http://{host}:{port}/api/traces");
+    let endpoint = format!("{host}:{port}");
 
-    global::set_text_map_propagator(JaegerPropagator::new());
+    global::set_text_map_propagator(opentelemetry_jaeger::Propagator::new());
 
-    let tracer = opentelemetry_jaeger::new_pipeline()
-        .with_collector_endpoint(endpoint)
+    let tracer = opentelemetry_jaeger::new_agent_pipeline()
+        .with_endpoint(endpoint)
         .with_service_name("book-shelf")
         .with_auto_split_batch(true)
         .with_max_packet_size(8192)
@@ -73,9 +73,42 @@ fn init_logger() -> Result<()> {
     tracing_subscriber::registry()
         .with(subscriber)
         .with(env_filter)
+        .with(opentelemetry)
         .try_init()?;
 
     Ok(())
+}
+ 
+
+async fn shutdown_signal() {
+    fn purge_spans() {
+        global::shutdown_tracer_provider();
+    }
+    let ctrl_c = async {
+        tokio::signal::ctrl_c()
+            .await
+            .expect("Failed to install CTRL+C signal handler");
+    };
+    #[cfg(unix)]
+    let terminate = async {
+        tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+            .expect("Failed to install SIGTERM signal handler")
+            .recv()
+            .await
+            .expect("Failed to receive SIGTERM signal");
+    };
+    #[cfg(not(unix))]
+    let terminate = std::future::pending();
+    tokio::select! {
+        _ = ctrl_c => {
+            tracing::info!("Received Ctrl-C signal");
+            purge_spans();
+        }
+        _ = terminate => {
+            tracing::info!("Received SIGTERM signal");
+            purge_spans();
+        }
+    }
 }
 
 async fn bootstrap() -> Result<()> {
@@ -103,6 +136,7 @@ async fn bootstrap() -> Result<()> {
     let listener = TcpListener::bind(&addr).await?;
     tracing::info!("Listening on {}", addr);
     axum::serve(listener, app)
+        .with_graceful_shutdown(shutdown_signal())
         .await
         .context("Unexpected error happened in the server")
         .inspect_err(|e| {
@@ -127,3 +161,6 @@ async fn health_check_db_works(pool: sqlx::PgPool) {
     let status_code = health_check_db(State:registry).await;
     assert_eq!(status_code, StatusCode::OK)
 } */
+
+//https://blog.ymgyt.io/entry/starting_opentelemetry_with_rust/
+//↑OpenTelemetryとは？（わかりやすい解説）
