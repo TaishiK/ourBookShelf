@@ -17,7 +17,7 @@ use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::EnvFilter;
 use tower_http::cors::{self, CorsLayer};
 use opentelemetry::global;
-//use JaegerPropagator;
+//use tracing_subscriber::fmt::format::Json;
 
 
 fn cors() -> CorsLayer {//CORSの設定-フロントエンドとの通信を許可
@@ -52,7 +52,7 @@ fn init_logger() -> Result<()> {
 
     let tracer = opentelemetry_jaeger::new_agent_pipeline()
         .with_endpoint(endpoint)
-        .with_service_name("book-shelf")
+        .with_service_name("book-manager")
         .with_auto_split_batch(true)
         .with_max_packet_size(8192)
         .install_simple()?;
@@ -66,46 +66,43 @@ fn init_logger() -> Result<()> {
     let subscriber = tracing_subscriber::fmt::layer() //ログの出力形式を設定
         .with_file(true)
         .with_line_number(true)
-        .with_target(false);
-    #[cfg(not(debug_assertions))]//デバッグモードでない場合（＝リリースビルド）
-    let subscriber = subscriber.json();//本番環境（リリースビルド）ではjson形式でログが出力される
-
+        .with_target(false)
+        .json();
     tracing_subscriber::registry()
         .with(subscriber)
         .with(env_filter)
         .with(opentelemetry)
         .try_init()?;
-
     Ok(())
 }
  
 
 async fn shutdown_signal() {
     fn purge_spans() {
-        global::shutdown_tracer_provider();
+        global::shutdown_tracer_provider();//トレーサーのシャットダウン
     }
     let ctrl_c = async {
-        tokio::signal::ctrl_c()
-            .await
-            .expect("Failed to install CTRL+C signal handler");
+        tokio::signal::ctrl_c()//Ctrl-Cのシグナルを受け取る
+            .await//Ctrl-Cのシグナルを待つ
+            .expect("Failed to install CTRL+C signal handler");//Ctrl-Cのシグナルの受け取りに失敗した場合のエラーメッセージ
     };
-    #[cfg(unix)]
-    let terminate = async {
+    #[cfg(unix)]//unix環境の場合(MacOS, Linux)
+    let terminate = async {//SIGTERMのシグナルを受け取る
         tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
-            .expect("Failed to install SIGTERM signal handler")
-            .recv()
-            .await
-            .expect("Failed to receive SIGTERM signal");
+            .expect("Failed to install SIGTERM signal handler")//SIGTERMのシグナルの受け取りに失敗した場合のエラーメッセージ
+            .recv()//SIGTERMのシグナルを待つ
+            .await//SIGTERMのシグナルを受け取る
+            .expect("Failed to receive SIGTERM signal");//SIGTERMのシグナルの受け取りに失敗した場合のエラーメッセージ
     };
-    #[cfg(not(unix))]
-    let terminate = std::future::pending();
+    #[cfg(not(unix))]//unix環境でない場合（Windows）
+    let terminate = std::future::pending();//SIGTERMのシグナルを受け取らない
     tokio::select! {
-        _ = ctrl_c => {
-            tracing::info!("Received Ctrl-C signal");
-            purge_spans();
-        }
+        _ = ctrl_c => {//Ctrl-Cのシグナルを受け取る
+            tracing::info!("Received Ctrl-C signal");//Ctrl-Cのシグナルを受け取った場合のログ
+            purge_spans();//トレーサーのシャットダウン
+        },
         _ = terminate => {
-            tracing::info!("Received SIGTERM signal");
+            tracing::info!("Received SIGTERM signal");//SIGTERMのシグナルを受け取った場合のログ
             purge_spans();
         }
     }
