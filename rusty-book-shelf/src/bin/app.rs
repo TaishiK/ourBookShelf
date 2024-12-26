@@ -17,7 +17,6 @@ use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::EnvFilter;
 use tower_http::cors::{self, CorsLayer};
 use opentelemetry::global;
-//use tracing_subscriber::fmt::format::Json;
 
 
 fn cors() -> CorsLayer {//CORSの設定-フロントエンドとの通信を許可
@@ -64,10 +63,10 @@ fn init_logger() -> Result<()> {
         EnvFilter::try_from_default_env().unwrap_or_else(|_| log_level.into());
 
     let subscriber = tracing_subscriber::fmt::layer() //ログの出力形式を設定
+        .json()
         .with_file(true)
         .with_line_number(true)
-        .with_target(false)
-        .json();
+        .with_target(false);
     tracing_subscriber::registry()
         .with(subscriber)
         .with(env_filter)
@@ -75,7 +74,7 @@ fn init_logger() -> Result<()> {
         .try_init()?;
     Ok(())
 }
- 
+
 
 async fn shutdown_signal() {
     fn purge_spans() {
