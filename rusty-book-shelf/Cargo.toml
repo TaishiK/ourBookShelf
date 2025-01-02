@@ -27,8 +27,8 @@ async-trait = "0.1.74"
 anyhow = { version = "1.0.75", default-features = false }
 axum = { version = "0.7.5", features = ["http1", "json", "query", "tokio"], default-features = false }
 derive-new = { version = "0.6.0", default-features = false }
-utoipa = { version = "4.1.0", feature = ["axum_extra", "uuid", "chrono"]}
-utoipa-redoc = { version = "2.0.0", features = ["axum"]}
+utoipa = { version = "4.1.0", features = ["axum_extras", "uuid", "chrono"] }
+utoipa-redoc = { version = "2.0.0", features = ["axum"] }
 uuid = { version = "1.4.0", features = ["serde", "v4"], default-features = false }
 chrono = { version = "0.4.26", default-features = false, features = ["serde"] }
 serde = { version = "1.0.174", default-features = false }

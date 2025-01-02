@@ -7,6 +7,14 @@ use kernel::model::auth::event::CreateToken;
 use registry::AppRegistry;
 use shared::error::AppResult;
 
+#[utoipa::path(
+    get,
+    path = "/auth/login",
+    responses(
+        (status = 200, description = "A user logged in"),
+        (status = 500, description = "Failed to login")
+    )
+)]
 pub async fn login(
     State(registry): State<AppRegistry>,
     Json(req): Json<LoginRequest>,
@@ -24,6 +32,15 @@ pub async fn login(
         access_token: access_token.0,
     }))
     }
+
+#[utoipa::path(
+    get,
+    path = "/auth/logout",
+    responses(
+        (status = 200, description = "A user logged out"),
+        (status = 500, description = "Failed to logout")
+    )
+)]
 pub async fn logout(
     user: AuthorizedUser,
     State(registry): State<AppRegistry>,
