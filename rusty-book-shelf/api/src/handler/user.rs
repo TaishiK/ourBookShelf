@@ -87,6 +87,15 @@ pub async fn change_password(
         .await?;
     Ok(StatusCode::OK)
 }
+
+#[utoipa::path(
+    get,
+    path = "/user",
+    responses(
+        (status = 200, description = "Current user information"),
+        (status = 500, description = "Failed to get current user information")
+    )
+)]
 pub async fn get_current_user(//This function is used to get the current user
     user: AuthorizedUser) -> Json<UserResponse> {
     Json(UserResponse::from(user.user))

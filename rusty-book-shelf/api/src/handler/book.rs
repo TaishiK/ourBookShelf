@@ -15,6 +15,15 @@ use crate::{
         UpdateBookRequest, UpdateBookRequestWithIds,
     },
 };
+
+#[utoipa::path(
+    post,
+    path = "/book",
+    responses(
+        (status = 200, description = "A book registered"),
+        (status = 500, description = "Failed to register a book")
+    )
+)]
 pub async fn register_book(
     user: AuthorizedUser,
     State(registry): State<AppRegistry>,
@@ -27,6 +36,14 @@ pub async fn register_book(
         .map(|_| StatusCode::CREATED)
 }
 
+#[utoipa::path(
+    get,
+    path = "/book",
+    responses(
+        (status = 200, description = "Book list retrieved"),
+        (status = 500, description = "Failed to retrieve book list")
+    )
+)]
 pub async fn show_book_list(
     _user: AuthorizedUser,
     Query(query):Query<BookListQuery>,
@@ -48,6 +65,14 @@ pub async fn show_book_list(
         user_id = %_user.user.id.to_string()
     )
 )]
+#[utoipa::path(
+    get,
+    path = "/book",
+    responses(
+        (status = 200, description = "A book retrieved"),
+        (status = 500, description = "Failed to retrieve a book")
+    )
+)]
 pub async fn show_book(
     _user: AuthorizedUser,
     Path(book_id): Path<BookId>,
@@ -66,6 +91,14 @@ pub async fn show_book(
         })
 }
 
+#[utoipa::path(
+    get,
+    path = "/book",
+    responses(
+        (status = 200, description = "A book updated"),
+        (status = 500, description = "Failed to update a book")
+    )
+)]
 pub async fn update_book (
     user: AuthorizedUser,
     Path((book_id,)): Path<(BookId,)>,
@@ -81,6 +114,14 @@ pub async fn update_book (
         .map(|_| StatusCode::OK)
 }
 
+#[utoipa::path(
+    get,
+    path = "/book",
+    responses(
+        (status = 200, description = "A book was deleted"),
+        (status = 500, description = "Failed to delete a book")
+    )
+)]
 pub async fn delete_book(
     user: AuthorizedUser,
     Path(book_id): Path<BookId>,

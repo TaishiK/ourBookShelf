@@ -17,7 +17,12 @@ use tracing_subscriber::util::SubscriberInitExt;
 use tracing_subscriber::EnvFilter;
 use tower_http::cors::{self, CorsLayer};
 use opentelemetry::global;
-
+#[cfg(debug_assertions)]
+use api::openapi::ApiDoc;
+#[cfg(debug_assertions)]
+use utoipa::OpenApi;
+#[cfg(debug_assertions)]
+use utoipa_redoc::{ Redoc, Servable };
 
 fn cors() -> CorsLayer {//CORSの設定-フロントエンドとの通信を許可
     CorsLayer::new()
@@ -113,9 +118,10 @@ async fn bootstrap() -> Result<()> {
     let kv = Arc::new(RedisClient::new(&app_config.redis)?); //Redis接続
     //let registry = AppRegistry::new(pool, kv, app_config); //AppRegistryの生成
     let registry = Arc::new(AppRegistryImpl::new(pool, kv, app_config)); //AppRegistryの生成
-    let app = Router::new()
-        .merge(v1::routes())
-        .merge(auth::routes())
+    let router = Router::new().merge(v1::routes()).merge(auth::routes());
+    #[cfg(debug_assertions)]
+    let router = router.merge(Redoc::with_url("/docs", ApiDoc::openapi()));
+    let app = router
         .layer(cors())//CORSの設定-フロントエンドとの通信を許可
         .layer(
             TraceLayer::new_for_http()
@@ -144,19 +150,5 @@ async fn bootstrap() -> Result<()> {
         })
         .map_err(Error::from)
 }
-
-/*
-#[tokio::test]
-async fn health_check_works() {
-    let status_code = health_check().await;
-    assert_eq!(status_code, StatusCode::OK);
-}
-
-#[sqlx::test]
-async fn health_check_db_works(pool: sqlx::PgPool) {
-    let status_code = health_check_db(State:registry).await;
-    assert_eq!(status_code, StatusCode::OK)
-} */
-
 //https://blog.ymgyt.io/entry/starting_opentelemetry_with_rust/
 //↑OpenTelemetryとは？（わかりやすい解説）

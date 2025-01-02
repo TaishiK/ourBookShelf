@@ -11,9 +11,10 @@ use kernel::model::{
 use serde::{Deserialize, Serialize};
 use super::user::{BookOwner, CheckoutUser};
 use chrono::{DateTime, Utc};
+use utoipa::ToSchema;
 
 
-#[derive(Debug, Deserialize, Validate)] //requestの値（Json形式）をRustの構造体に変換（deserialize)する
+#[derive(Debug, Deserialize, Validate, ToSchema)] //requestの値（Json形式）をRustの構造体に変換（deserialize)する
 #[serde(rename_all = "camelCase")] //frontend側(Javascript)との連携のためにキャメルケースに変換
 pub struct CreateBookRequest {
     #[garde(length(min = 1))]
@@ -41,7 +42,7 @@ impl From<CreateBookRequest> for CreateBook {
         }
     }
 }
-#[derive(Debug, Deserialize, Validate)]
+#[derive(Debug, Deserialize, Validate, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateBookRequest {
     #[garde(length(min = 1))]
@@ -102,7 +103,7 @@ impl From<BookListQuery> for BookListOptions {
 }
 
 
-#[derive(Debug, Deserialize, Serialize)] //responseの値（Rustの構造体）をJson形式に変換（serialize)する
+#[derive(Debug, Deserialize, Serialize, ToSchema)] //responseの値（Rustの構造体）をJson形式に変換（serialize)する
 #[serde(rename_all = "camelCase")] //frontend側(Javascript)との連携のためにキャメルケースに変換
 pub struct BookResponse {
     pub id: BookId,
@@ -136,7 +137,7 @@ impl From<Book> for BookResponse {
         }
     }
 }
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct PaginatedBookResponse {
     pub total: i64,
@@ -161,7 +162,7 @@ impl From<PaginatedList<Book>> for PaginatedBookResponse {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct BookCheckoutResponse {
     pub id: CheckoutId,

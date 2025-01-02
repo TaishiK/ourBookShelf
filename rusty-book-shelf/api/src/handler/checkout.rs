@@ -15,12 +15,21 @@ use kernel::model::{
 use registry::AppRegistry;
 use shared::error::AppResult;
 
+#[utoipa::path(
+    post,
+    path = "/checkout",
+    responses(
+        (status = 200, description = "A book was checked out"),
+        (status = 500, description = "Failed to checkout a book")
+    )
+)]
+
 pub async fn checkout_book(
     user: AuthorizedUser,
     Path((book_id,)): Path<(BookId,)>,
     State(registry): State<AppRegistry>,
 ) -> AppResult<StatusCode> {
-    let create_checkout_history = 
+    let create_checkout_history =
         CreateCheckout::new(book_id, user.id(), Utc::now());
     registry
         .checkout_repository()
@@ -29,6 +38,14 @@ pub async fn checkout_book(
         .map(|_| StatusCode::CREATED)
 }
 
+#[utoipa::path(
+    post,
+    path = "/checkout",
+    responses(
+        (status = 200, description = "A book was returned"),
+        (status = 500, description = "Failed to return a book")
+    )
+)]
 pub async fn return_book(
     user: AuthorizedUser,
     Path((book_id, checkout_id)): Path<(BookId, CheckoutId)>,
@@ -57,6 +74,15 @@ pub async fn show_checked_out_list(
         .map(CheckoutsResponse::from)
         .map(Json)
 }
+
+#[utoipa::path(
+    get,
+    path = "/checkout",
+    responses(
+        (status = 200, description = "Checkout history retrieved"),
+        (status = 500, description = "Failed to retrieve checkout history")
+    )
+)]
 pub async fn checkout_history(
     _user: AuthorizedUser,
     Path((book_id,)): Path<(BookId,)>,
